@@ -15,7 +15,7 @@ interface Message {
 const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         // Initial AI message
-        { id: Date.now(), text: 'Hej vad vill du veta om mig?', sender: 'ai' }
+        { id: Date.now(), text: 'Hej! Jag är Peter. Vad vill du veta om mig?', sender: 'ai' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +23,7 @@ const ChatWindow: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false); // För att visa/dölja chatboten
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
-    console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     // --- Auto-scroll Effect ---
     useEffect(() => {
@@ -49,12 +48,16 @@ const ChatWindow: React.FC = () => {
         // setError(null);
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/chat`, {
+            const response = await fetch(`${apiBaseUrl}/chat/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ question: trimmedInput }),
+                body: JSON.stringify({ 
+                    query: trimmedInput,
+                    conversation_id: 'frontend_chat',
+                    user_id: 'web_user'
+                }),
             });
 
             if (!response.ok) {
@@ -70,13 +73,13 @@ const ChatWindow: React.FC = () => {
 
             const data = await response.json();
 
-            if (!data.answer) {
-                throw new Error("Received an empty answer from the server.");
+            if (!data.response) {
+                throw new Error("Received an empty response from the server.");
             }
 
             const aiMessage: Message = {
                 id: Date.now() + 1,
-                text: data.answer,
+                text: data.response,
                 sender: 'ai',
             };
             setMessages(prev => [...prev, aiMessage]);

@@ -10,7 +10,7 @@ const About: React.FC = () => {
         
         <div className="max-w-3xl mx-auto bg-gray-50 dark:bg-gray-800 p-8 rounded-lg shadow-md">
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            Jag är en passionerad frontend-utvecklare som bara är två månader ifrån att ta examen från en tvåårig frontend-utbildning. Min resa inom webbutveckling har drivits av en vilja att skapa intuitiva, tillgängliga och visuellt tilltalande digitala upplevelser.
+            Jag är en passionerad frontend-utvecklare som bara är utexaminerad från en tvåårig frontend-utbildning. Min resa inom webbutveckling har drivits av en vilja att skapa intuitiva, tillgängliga och visuellt tilltalande digitala upplevelser.
           </p>
           
           <p className="mb-4 text-gray-700 dark:text-gray-300">
