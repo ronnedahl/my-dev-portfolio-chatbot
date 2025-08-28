@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 import time
 from collections import defaultdict
@@ -28,8 +29,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         
-        # Remove server header
-        response.headers.pop("server", None)
+        # Remove server header (if present)
+        if "server" in response.headers:
+            del response.headers["server"]
         
         return response
 
@@ -84,8 +86,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return False, ""
     
     async def dispatch(self, request: Request, call_next):
-        # Skip rate limiting for health checks
-        if request.url.path in ["/health", "/", "/docs", "/openapi.json"]:
+        # Skip rate limiting for health checks and CORS preflight
+        if request.url.path in ["/health", "/", "/docs", "/openapi.json"] or request.method == "OPTIONS":
             return await call_next(request)
         
         client_ip = self._get_client_ip(request)
@@ -132,19 +134,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 def setup_security_middleware(app: FastAPI):
     """Setup all security middleware for the application."""
+    from src.config import settings
     
-    # Add trusted host middleware (prevent host header attacks)
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=[
-            "localhost",
-            "127.0.0.1",
-            "peterbot.dev",
-            "www.peterbot.dev",
-            "api.peterbot.dev",
-            "*.peterbot.dev"
-        ]
-    )
+    # Debug middleware disabled - uncomment if needed for debugging
+    # if settings.is_development:
+    #     from src.middleware.debug_cors import CORSDebugMiddleware
+    #     app.add_middleware(CORSDebugMiddleware)
     
     # Add security headers
     app.add_middleware(SecurityHeadersMiddleware)
@@ -156,8 +151,20 @@ def setup_security_middleware(app: FastAPI):
         calls_per_hour=1000   # 1000 requests per hour
     )
     
+    # Only add TrustedHostMiddleware in production to avoid CORS issues in development
+    if settings.is_production:
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=[
+                "peterbot.dev",
+                "www.peterbot.dev",
+                "api.peterbot.dev",
+                "chat.peterbot.dev",
+                "*.peterbot.dev"
+            ]
+        )
+        logger.info("TrustedHost middleware enabled for production")
+    else:
+        logger.info("TrustedHost middleware disabled for development (CORS compatibility)")
+    
     logger.info("Security middleware configured")
-
-
-# Import for JSONResponse
-from fastapi.responses import JSONResponse
