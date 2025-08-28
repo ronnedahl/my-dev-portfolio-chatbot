@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
-import { IoSend, IoSettingsOutline } from 'react-icons/io5';
+import { IoSend } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
-import { Link } from 'react-router-dom';
 import profilfoto from '../assets/profilfoto.jpg';
 import { sendChatMessage, APIError } from '../utils/api';
 
@@ -135,20 +134,13 @@ const ChatPage: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center">
                     <button
                         onClick={clearChat}
                         className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-md text-gray-300 hover:text-white transition-colors"
                     >
                         Rensa chat
                     </button>
-                    <Link
-                        to="/admin"
-                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
-                        title="Admin panel"
-                    >
-                        <IoSettingsOutline size={20} />
-                    </Link>
                 </div>
             </header>
 
