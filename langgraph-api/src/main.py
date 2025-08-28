@@ -39,7 +39,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS
+# Setup security middleware (Helmet-like headers and rate limiting)
+setup_security_middleware(app)
+
+# Configure CORS (MUST be after security middleware to handle preflight requests correctly)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -55,9 +58,6 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]
 )
-
-# Setup security middleware (Helmet-like headers and rate limiting)
-setup_security_middleware(app)
 
 
 # Exception handler
