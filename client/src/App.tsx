@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage';
+import NotFoundPage from './pages/NotFoundPage';
+import ServerErrorPage from './pages/ServerErrorPage';
 
 const App: React.FC = () => {
   return (
@@ -21,8 +23,12 @@ const App: React.FC = () => {
           {/* Admin panel */}
           <Route path="/admin" element={<AdminPage />} />
           
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/chat" replace />} />
+          {/* Error pages */}
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="/500" element={<ServerErrorPage />} />
+          
+          {/* 404 Not Found - Catch all route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </Router>
