@@ -52,6 +52,27 @@ class Settings(BaseSettings):
     similarity_threshold: float = Field(default=0.7, env="SIMILARITY_THRESHOLD")
     max_search_results: int = Field(default=5, env="MAX_SEARCH_RESULTS")
     
+    # Performance Configuration
+    request_timeout: int = Field(default=30, env="REQUEST_TIMEOUT")
+    llm_timeout: int = Field(default=15, env="LLM_TIMEOUT")  
+    vector_search_timeout: int = Field(default=10, env="VECTOR_SEARCH_TIMEOUT")
+    max_concurrent_requests: int = Field(default=10, env="MAX_CONCURRENT_REQUESTS")
+    
+    # Security Configuration
+    admin_emails: list[str] = Field(default_factory=list, env="ADMIN_EMAILS")
+    api_keys: list[str] = Field(default_factory=list, env="API_KEYS")
+    allowed_origins: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "https://peterbot.dev",
+            "https://www.peterbot.dev",
+            "https://api.peterbot.dev",
+            "https://chat.peterbot.dev"
+        ],
+        env="ALLOWED_ORIGINS"
+    )
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

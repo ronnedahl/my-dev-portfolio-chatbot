@@ -23,9 +23,8 @@ def create_agent_graph():
     
     The graph flow:
     1. Analyze query to determine if retrieval is needed
-    2. Either retrieve context or skip to planning
-    3. Plan the response based on available information
-    4. Generate the final response
+    2. Either retrieve context or skip retrieval
+    3. Plan and generate the final response in one step (optimized)
     """
     # Initialize nodes
     nodes = Nodes()
@@ -37,8 +36,7 @@ def create_agent_graph():
     workflow.add_node("analyze_query", nodes.analyze_query)
     workflow.add_node("retrieve_context", nodes.retrieve_context)
     workflow.add_node("skip_retrieval", nodes.skip_retrieval)
-    workflow.add_node("plan_response", nodes.plan_response)
-    workflow.add_node("generate_response", nodes.generate_response)
+    workflow.add_node("plan_and_generate_response", nodes.plan_and_generate_response)
     
     # Define edges
     workflow.set_entry_point("analyze_query")
@@ -53,15 +51,12 @@ def create_agent_graph():
         }
     )
     
-    # Both paths lead to planning
-    workflow.add_edge("retrieve_context", "plan_response")
-    workflow.add_edge("skip_retrieval", "plan_response")
-    
-    # Planning leads to response generation
-    workflow.add_edge("plan_response", "generate_response")
+    # Both paths lead to combined planning and response generation
+    workflow.add_edge("retrieve_context", "plan_and_generate_response")
+    workflow.add_edge("skip_retrieval", "plan_and_generate_response")
     
     # End after generating response
-    workflow.add_edge("generate_response", END)
+    workflow.add_edge("plan_and_generate_response", END)
     
     # Add memory for conversation persistence
     memory = MemorySaver()
@@ -69,7 +64,7 @@ def create_agent_graph():
     # Compile the graph
     app = workflow.compile(checkpointer=memory)
     
-    logger.info("agent_graph_created", nodes_count=5)
+    logger.info("agent_graph_created", nodes_count=4)
     
     return app
 

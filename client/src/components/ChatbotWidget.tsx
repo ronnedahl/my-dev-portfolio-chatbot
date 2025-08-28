@@ -3,6 +3,7 @@ import { IoSend } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
 import { FaTimes } from 'react-icons/fa'; // För stäng-knappen
 import profilfoto from '../assets/profilfoto.jpg'; // Relativ sökväg till din bild
+import { sendChatMessage, APIError } from '../utils/api';
 
 // --- Types ---
 interface Message {
@@ -22,8 +23,6 @@ const ChatWindow: React.FC = () => {
     // const [error, setError] = useState<string | null>(null);
     const [isVisible, setIsVisible] = useState(false); // För att visa/dölja chatboten
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     // --- Auto-scroll Effect ---
     useEffect(() => {
@@ -48,30 +47,11 @@ const ChatWindow: React.FC = () => {
         // setError(null);
 
         try {
-            const response = await fetch(`${apiBaseUrl}/chat/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    query: trimmedInput,
-                    conversation_id: 'frontend_chat',
-                    user_id: 'web_user'
-                }),
+            const data = await sendChatMessage({
+                query: trimmedInput,
+                conversation_id: 'frontend_chat',
+                user_id: 'web_user'
             });
-
-            if (!response.ok) {
-                let errorMsg = `Error: ${response.status} ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.error || errorMsg;
-                } catch (jsonError) {
-                    // Ignore if response body isn't valid JSON
-                }
-                throw new Error(errorMsg);
-            }
-
-            const data = await response.json();
 
             if (!data.response) {
                 throw new Error("Received an empty response from the server.");
@@ -86,10 +66,24 @@ const ChatWindow: React.FC = () => {
 
         } catch (err: any) {
             console.error("Failed to send message:", err);
-            // setError(err.message || 'Failed to connect to the chat service. Please try again later.');
+            
+            let errorText = 'Kunde inte ge dig ett svar, prova igen';
+            
+            if (err instanceof APIError) {
+                if (err.status === 429) {
+                    errorText = 'Du skickar för många meddelanden. Vänta en stund och försök igen.';
+                } else if (err.status === 408 || err.status === 504) {
+                    errorText = 'Begäran tog för lång tid. Försök igen.';
+                } else if (err.status >= 500) {
+                    errorText = 'Serverfel. Försök igen senare.';
+                } else {
+                    errorText = err.message || errorText;
+                }
+            }
+            
             const errorMessage: Message = {
                 id: Date.now() + 1,
-                text: err.message || 'Kunde inte ge dig ett svar, prova igen',
+                text: errorText,
                 sender: 'error',
             };
             setMessages(prev => [...prev, errorMessage]);

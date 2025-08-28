@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Backend API
+  api:
+    build:
+      context: ./langgraph-api
+      dockerfile: Dockerfile
+    container_name: peterbot-api
+    restart: unless-stopped
+    env_file:
+      - ./langgraph-api/.env.production
+    ports:
+      - "8000:8000"
+    networks:
+      - peterbot-network
+    volumes:
+      - api-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Frontend Chat
+  chat:
+    build:
+      context: ./standalone-chat
+      dockerfile: Dockerfile
+    container_name: peterbot-chat
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - peterbot-network
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.1'
+
+  # Nginx reverse proxy (valfritt)
+  nginx:
+    image: nginx:alpine
+    container_name: peterbot-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    networks:
+      - peterbot-network
+    depends_on:
+      - api
+      - chat
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+volumes:
+  api-logs:
+  nginx-cache:
+
+networks:
+  peterbot-network:
+    driver: bridge

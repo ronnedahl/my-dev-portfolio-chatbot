@@ -6,9 +6,10 @@ from fastapi.responses import JSONResponse
 import structlog
 import uvicorn
 from contextlib import asynccontextmanager
-from src.api.routes import chat, documents, search, health
+from src.api.routes import chat, documents, search, health, admin
 from src.config import settings
 from src.utils import setup_logging
+from src.middleware import setup_security_middleware
 
 # Setup logging
 setup_logging()
@@ -41,11 +42,22 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://peterbot.dev"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://localhost:5173", 
+        "https://peterbot.dev",
+        "https://www.peterbot.dev",
+        "https://api.peterbot.dev",
+        "https://chat.peterbot.dev"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]
 )
+
+# Setup security middleware (Helmet-like headers and rate limiting)
+setup_security_middleware(app)
 
 
 # Exception handler
@@ -73,6 +85,7 @@ app.include_router(health.router)
 app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(search.router)
+app.include_router(admin.router)
 
 
 def run():
