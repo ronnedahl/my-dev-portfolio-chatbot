@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Peter Boden AI Chat - Ställ frågor om Peters kompetenser, projekt och erfarenhet">
+    <meta name="author" content="Peter Boden">
+    <meta name="keywords" content="Peter Boden, AI, Chat, Webbutveckling, JavaScript, Python">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Peter AI Chat">
+    <meta property="og:description" content="Ställ frågor om Peter Bodens kompetenser och erfarenhet">
+    <meta property="og:url" content="https://chat.peterbod.dev">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Peter AI Chat">
+    <meta name="twitter:description" content="Ställ frågor om Peter Bodens kompetenser och erfarenhet">
+
+    <title>Peter AI Chat - Fråga Peter om hans kompetenser</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="./assets/css/styles.css" as="style">
+    <link rel="preload" href="./assets/js/main.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
+    
+    <!-- Theme color -->
+    <meta name="theme-color" content="#2a5298">
+</head>
+<body>
+    <!-- Chat Application Container -->
+    <main class="chat" role="main">
+        <!-- Error Banner -->
+        <div class="error-banner" id="error-banner" aria-live="polite"></div>
+        
+        <!-- Chat Header -->
+        <header class="chat__header">
+            <h1 class="chat__title">
+                <span class="status-indicator" id="status-indicator" aria-label="Anslutningsstatus"></span>
+                Peter AI Assistant
+            </h1>
+            <p class="chat__subtitle">
+                Ställ mig frågor om Peter Boden - hans kompetenser, projekt och erfarenhet
+            </p>
+        </header>
+
+        <!-- Messages Container -->
+        <div class="chat__messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chattkonversation">
+            <!-- Initial AI message -->
+            <div class="message message--ai" role="log">
+                <div class="message__avatar" aria-label="AI-assistent">P</div>
+                <div class="message__content">
+                    Hej! Jag är Peter Boden's AI-assistent. Jag kan berätta om hans kompetenser, projekt, arbetslivserfarenhet och tekniska kunskaper. Vad vill du veta?
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat__input">
+            <input 
+                type="text" 
+                id="message-input" 
+                class="chat__input-field"
+                placeholder="Skriv ditt meddelande här..."
+                maxlength="500"
+                autocomplete="off"
+                aria-label="Skriv ditt meddelande här"
+                aria-describedby="input-help"
+            >
+            <button id="send-button" type="button" class="chat__send-button" aria-label="Skicka meddelande">
+                <svg class="chat__send-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Screen reader help text -->
+        <div id="input-help" class="u-sr-only">
+            Skriv ditt meddelande och tryck Enter eller klicka på skicka-knappen för att skicka.
+        </div>
+    </main>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="./assets/js/main.js"></script>
+    
+    <!-- Fallback for browsers without module support -->
+    <script nomodule>
+        alert('Din webbläsare stöder inte ES6-moduler. Vänligen uppdatera till en nyare version.');
+    </script>
+
+    <!-- Service Worker Registration (optional) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(registrationError => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>

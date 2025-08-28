@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef, ChangeEvent, MouseEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { IoArrowBack, IoBarChart, IoTrash, IoRefresh } from 'react-icons/io5';
+import { getCacheStats, clearCache, cleanupCache } from '../utils/api';
 
 // Interface for the status message state
 interface StatusMessage {
@@ -226,11 +229,56 @@ function AdminPage(){
     <div className="min-h-screen bg-gray-900 text-gray-200 py-10 font-sans">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
 
-        {/* Heading */}
-        <h1 className="mb-10 text-center text-3xl font-bold text-white sm:text-4xl relative pb-4">
-          Chatbot Content <span className="text-blue-500">Admin</span>
-          <span className="absolute bottom-0 left-1/2 h-1 w-20 -translate-x-1/2 rounded-sm bg-blue-500"></span>
-        </h1>
+        {/* Header with back button */}
+        <div className="mb-8 flex items-center justify-between">
+          <Link 
+            to="/chat"
+            className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            <IoArrowBack size={20} />
+            <span>Tillbaka till chat</span>
+          </Link>
+          
+          <h1 className="text-2xl font-bold text-white">
+            Admin Panel
+          </h1>
+          
+          <div className="w-32"></div> {/* Spacer for alignment */}
+        </div>
+
+        {/* Quick Actions Section */}
+        <section className="mb-8 rounded-lg bg-gray-800 p-6 shadow-md">
+          <h2 className="mb-5 inline-block border-b-2 border-blue-500 pb-2 text-xl font-semibold text-white">
+            <IoBarChart className="inline mr-2" />
+            Cache Management
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button
+              onClick={() => {/* getCacheStats implementation */}}
+              className="p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
+            >
+              <IoBarChart className="mx-auto mb-2" size={24} />
+              Cache Stats
+            </button>
+            
+            <button
+              onClick={() => {/* clearCache implementation */}}
+              className="p-4 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-colors"
+            >
+              <IoTrash className="mx-auto mb-2" size={24} />
+              Clear Cache
+            </button>
+            
+            <button
+              onClick={() => {/* cleanupCache implementation */}}
+              className="p-4 bg-green-600 hover:bg-green-700 rounded-lg text-white font-medium transition-colors"
+            >
+              <IoRefresh className="mx-auto mb-2" size={24} />
+              Cleanup Cache
+            </button>
+          </div>
+        </section>
 
         {/* Status Message Area */}
         {statusMessage.text && (

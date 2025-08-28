@@ -4,7 +4,7 @@ from typing import Dict, Any, List
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import structlog
-from src.services import FirebaseVectorStore
+from src.services.cached_vector_store import CachedVectorStore
 from src.config import settings
 from .state import AgentState
 
@@ -19,9 +19,11 @@ class Nodes:
         self.llm = ChatOpenAI(
             openai_api_key=settings.openai_api_key,
             model="gpt-4o-mini",
-            temperature=0.7
+            temperature=0.7,
+            timeout=settings.llm_timeout,
+            max_retries=2
         )
-        self.vector_store = FirebaseVectorStore()
+        self.vector_store = CachedVectorStore(cache_ttl=300)  # 5 minutes cache
     
     async def analyze_query(self, state: AgentState) -> Dict[str, Any]:
         """
@@ -123,60 +125,84 @@ class Nodes:
                 "retrieved_context": []
             }
     
-    async def plan_response(self, state: AgentState) -> Dict[str, Any]:
+    async def plan_and_generate_response(self, state: AgentState) -> Dict[str, Any]:
         """
-        Plan the response based on query and retrieved context.
+        Plan and generate the response in one step for better performance.
         
-        This node creates a structured plan for answering the user.
+        This combines response planning and generation to reduce LLM calls.
         """
         try:
             query = state["query"]
             context = state.get("retrieved_context", [])
             
-            # Build context string
+            # Build context for response generation
             context_str = ""
             if context:
-                context_str = "\n\nRelevant information from knowledge base:\n"
-                for i, doc in enumerate(context, 1):
-                    context_str += f"\n{i}. {doc['text']} (relevance: {doc['similarity']:.2f})"
+                context_str = "\n\nRelevant information:\n"
+                for doc in context:
+                    context_str += f"- {doc['text']}\n"
+                    if doc.get("metadata"):
+                        for key, value in doc["metadata"].items():
+                            context_str += f"  {key}: {value}\n"
             
-            # System prompt for response planning
-            system_prompt = """You are an AI assistant helping to plan responses.
-            Based on the user query and any retrieved context, create a brief plan
-            for how to answer the user's question.
+            # System prompt for combined planning and response generation
+            system_prompt = """You ARE Peter speaking directly to visitors on your portfolio website.
+            Answer questions about yourself in FIRST PERSON using "I", "my", "me".
             
-            The plan should:
-            1. Identify the key points to address
-            2. Note which information from the context is most relevant
-            3. Suggest the tone and structure of the response
-            4. Flag any missing information
+            Important instructions:
+            - Speak AS Peter, not about Peter
+            - Use "I am 51 years old" NOT "Peter is 51 years old"
+            - Use "my experience" NOT "Peter's experience"
+            - Be friendly, professional, and personable
+            - Use the context provided to give accurate information about yourself
+            - If you don't have specific information, say "I haven't included that information"
             
-            Keep the plan concise and actionable."""
+            Response style:
+            - Conversational and welcoming
+            - Professional but approachable
+            - Share your enthusiasm for web development and AI
+            - Be genuine and authentic
+            
+            Example responses:
+            - "I'm 51 years old but feel like I'm 35!"
+            - "I have 5 years of experience with Python"
+            - "My passion is web development and AI"
+            
+            Language: Respond in the same language as the question (Swedish or English)"""
+            
+            user_prompt = f"""Query: {query}{context_str}
+            
+            Please provide a helpful response to the user's query."""
             
             messages = [
                 SystemMessage(content=system_prompt),
-                HumanMessage(content=f"Query: {query}{context_str}")
+                HumanMessage(content=user_prompt)
             ]
             
             response = await self.llm.ainvoke(messages)
-            plan = response.content
+            final_response = response.content
             
             logger.info(
-                "response_planned",
+                "combined_response_generated",
                 query=query[:100],
-                plan_length=len(plan)
+                response_length=len(final_response)
             )
             
             return {
-                "response_plan": plan,
+                "final_response": final_response,
+                "response_plan": "Combined planning and generation",
                 "messages": state["messages"] + [
-                    {"role": "system", "content": f"Response plan created: {plan[:200]}..."}
+                    HumanMessage(content=query),
+                    AIMessage(content=final_response)
                 ]
             }
             
         except Exception as e:
-            logger.error("response_planning_failed", error=str(e))
-            return {"error": str(e)}
+            logger.error("combined_response_generation_failed", error=str(e))
+            return {
+                "error": str(e),
+                "final_response": "I apologize, but I encountered an error while generating a response. Please try again."
+            }
     
     async def generate_response(self, state: AgentState) -> Dict[str, Any]:
         """

@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS Variables for Tailwind v4 compatibility */
+:root {
+  /* Brand Colors */
+  --color-primary-50: #eff6ff;
+  --color-primary-500: #4a90e2;
+  --color-primary-600: #357abd;
+  --color-secondary-500: #34d399;
+  
+  /* Glass Morphism */
+  --glass-bg-light: rgba(255, 255, 255, 0.1);
+  --glass-bg-medium: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  
+  /* Shadows */
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --shadow-glass-lg: 0 20px 40px 0 rgba(31, 38, 135, 0.4);
+  
+  /* Animations */
+  --duration-fast: 0.15s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.5s;
+  
+  /* Z-index scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+.dark {
+  /* Dark mode overrides */
+  --glass-bg-light: rgba(0, 0, 0, 0.3);
+  --glass-bg-medium: rgba(0, 0, 0, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Base styles */
+@layer base {
+  html {
+    @apply antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800;
+    @apply text-slate-900 dark:text-white min-h-screen font-sans;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-400;
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  /* Glass morphism components */
+  .glass-card {
+    @apply backdrop-blur-md bg-glass-light border border-white/20 rounded-2xl shadow-glass;
+  }
+
+  .glass-button {
+    @apply backdrop-blur-md bg-glass-medium border border-white/20 rounded-full;
+    @apply hover:bg-glass-medium transition-all duration-300;
+    @apply active:scale-95;
+  }
+
+  /* Message components */
+  .message-bubble {
+    @apply max-w-[85%] px-4 py-3 rounded-2xl shadow-sm;
+    @apply animate-fade-in-up;
+  }
+
+  .message-bubble--user {
+    @apply bg-primary-500 text-white ml-auto;
+  }
+
+  .message-bubble--ai {
+    @apply glass-card text-white;
+  }
+
+  .message-bubble--error {
+    @apply bg-red-500 text-white;
+  }
+
+  /* Avatar components */
+  .avatar {
+    @apply w-10 h-10 rounded-full flex items-center justify-center;
+    @apply font-semibold text-sm flex-shrink-0;
+  }
+
+  .avatar--user {
+    @apply bg-primary-500 text-white;
+  }
+
+  .avatar--ai {
+    @apply bg-secondary-500 text-white;
+  }
+
+  .avatar--error {
+    @apply bg-red-500 text-white;
+  }
+
+  /* Input components */
+  .chat-input {
+    @apply glass-card px-6 py-4 resize-none;
+    @apply placeholder:text-white/60 text-white;
+    @apply focus:ring-2 focus:ring-primary-400/50 focus:border-transparent;
+    @apply transition-all duration-300;
+  }
+
+  /* Button components */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white;
+    @apply px-6 py-3 rounded-full font-medium;
+    @apply transition-all duration-300 transform hover:scale-105;
+    @apply focus:ring-4 focus:ring-primary-400/30;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+  }
+
+  /* Typing indicator */
+  .typing-dot {
+    @apply w-2 h-2 bg-white/60 rounded-full;
+    animation: typing 1.4s infinite ease-in-out;
+  }
+
+  .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+  .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+  /* Status indicator */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+    @apply animate-pulse-slow;
+  }
+
+  .status-dot--connected {
+    @apply bg-green-400;
+  }
+
+  .status-dot--disconnected {
+    @apply bg-red-400;
+  }
+
+  .status-dot--connecting {
+    @apply bg-yellow-400;
+  }
+}
+
+/* Utility layer for custom utilities */
+@layer utilities {
+  /* Scrollbar styles */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-white/30 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/40;
+  }
+
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animation utilities */
+  .animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Glass morphism utilities */
+  .glass-bg {
+    background: var(--glass-bg-light);
+    backdrop-filter: blur(10px);
+  }
+
+  .glass-border {
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Safe area utilities for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  
+  .glass-card {
+    @apply bg-white border-gray-300;
+  }
+  
+  .message-bubble--user {
+    @apply bg-gray-100 text-black;
+  }
+  
+  .message-bubble--ai {
+    @apply bg-gray-50 text-black;
+  }
+}
