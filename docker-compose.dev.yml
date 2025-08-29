@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Backend (Development mode med hot reload)
+  backend-dev:
+    build:
+      context: ./langgraph-api
+      dockerfile: Dockerfile.dev
+    container_name: peterbot-backend-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_COLLECTION_NAME=${FIREBASE_COLLECTION_NAME}
+      - FIREBASE_FIELD_NAME=${FIREBASE_FIELD_NAME}
+      - FIREBASE_INDEX_NAME=${FIREBASE_INDEX_NAME}
+      - SERVICE_ACCOUNT_KEY=${SERVICE_ACCOUNT_KEY}
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./langgraph-api:/app
+      - /app/.venv  # Exclude .venv from volume mount
+    networks:
+      - peterbot-dev-network
+    command: ["uv", "run", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+
+  # Frontend (Development mode)
+  frontend-dev:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: peterbot-frontend-dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
+      - VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN}
+      - VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID}
+      - VITE_FIREBASE_STORAGE_BUCKET=${VITE_FIREBASE_STORAGE_BUCKET}
+      - VITE_FIREBASE_MESSAGING_SENDER_ID=${VITE_FIREBASE_MESSAGING_SENDER_ID}
+      - VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID}
+    volumes:
+      - ./client:/app
+      - /app/node_modules  # Exclude node_modules from volume mount
+    networks:
+      - peterbot-dev-network
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+networks:
+  peterbot-dev-network:
+    driver: bridge

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Security testing script for Peterbot AI
 Run this while your backend is running on localhost:8000

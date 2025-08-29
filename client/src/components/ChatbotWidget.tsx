@@ -1,35 +1,31 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { IoSend } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
-import { FaTimes } from 'react-icons/fa'; // För stäng-knappen
-import profilfoto from '../assets/profilfoto.jpg'; // Relativ sökväg till din bild
+import { FaTimes } from 'react-icons/fa';
+import profilfoto from '../assets/profilfoto.jpg'; 
 import { sendChatMessage, APIError } from '../utils/api';
 
-// --- Types ---
 interface Message {
     id: number;
     text: string;
     sender: 'user' | 'ai' | 'error';
 }
 
-// --- Component ---
 const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
-        // Initial AI message
+      
         { id: Date.now(), text: 'Hej! Jag är Peter. Vad vill du veta om mig?', sender: 'ai' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    // const [error, setError] = useState<string | null>(null);
-    const [isVisible, setIsVisible] = useState(false); // För att visa/dölja chatboten
+   
+    const [isVisible, setIsVisible] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // --- Auto-scroll Effect ---
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // --- Send Message Handler ---
     const handleSend = async (e: FormEvent) => {
         e.preventDefault();
         const trimmedInput = inputValue.trim();
@@ -44,7 +40,6 @@ const ChatWindow: React.FC = () => {
         setMessages(prev => [...prev, userMessage]);
         setInputValue('');
         setIsLoading(true);
-        // setError(null);
 
         try {
             const data = await sendChatMessage({
@@ -93,15 +88,13 @@ const ChatWindow: React.FC = () => {
         }
     };
 
-    // --- Toggle Chat Visibility ---
     const toggleChatVisibility = () => {
         setIsVisible(!isVisible);
     };
 
-    // --- Render ---
     return (
         <>
-            {/* Chatbot Toggle Button */}
+          
             <button 
                 onClick={toggleChatVisibility}
                 className={`fixed bottom-20 sm:bottom-4 md:bottom-4 right-4 rounded-full shadow-lg hover:opacity-90 transition-all z-50 p-0 overflow-hidden w-14 h-14 flex items-center justify-center border border-white ${!isVisible ? 'animate-pulse' : ''}`}
@@ -117,12 +110,11 @@ const ChatWindow: React.FC = () => {
                 </div>
             </button>
 
-            {/* Chat Window */}
             {isVisible && (
                 <div className="fixed w-full h-full bottom-0 right-0 sm:bottom-20 sm:right-6 sm:w-[90vw] sm:max-w-sm sm:h-[65vh] sm:max-h-[500px] sm:rounded-lg
                 md:bottom-20 md:right-8 md:w-[90vw] md:max-w-sm md:h-[65vh] md:max-h-[500px] md:rounded-lg
                 bg-gray-900 shadow-xl flex flex-col overflow-hidden z-40 border-0 sm:border sm:border-gray-700 transition-all">
-                    {/* Header */}
+                   
                     <div className="bg-blue-600 text-white font-bold p-3 flex items-center justify-between flex-shrink-0">
                         <div className="flex items-center">
                             <div className="mr-2 w-6 h-6 rounded-full overflow-hidden">
@@ -143,7 +135,6 @@ const ChatWindow: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Message Area */}
                     <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-800">
                         {messages.map((msg) => (
                             <div
@@ -165,7 +156,7 @@ const ChatWindow: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        {/* Loading Indicator */}
+                        
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="bg-gray-700 text-white p-3 rounded-lg">
@@ -173,11 +164,10 @@ const ChatWindow: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                        {/* Invisible div to mark the end for scrolling */}
+                       
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input Area */}
                     <div className="p-3 border-t border-gray-700 bg-gray-900 flex-shrink-0">
                         <form onSubmit={handleSend} className="flex items-center">
                             <input

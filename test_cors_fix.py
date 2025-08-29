@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Test CORS configuration after fixes
 """

@@ -25,12 +25,10 @@ const ChatPage: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // Focus input on component mount
     useEffect(() => {
         inputRef.current?.focus();
     }, []);
@@ -118,7 +116,7 @@ const ChatPage: React.FC = () => {
 
     return (
         <div className="h-screen flex flex-col bg-gray-900">
-            {/* Header */}
+        
             <header className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500">
@@ -144,7 +142,6 @@ const ChatPage: React.FC = () => {
                 </div>
             </header>
 
-            {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
                 {messages.map((msg) => (
                     <div
@@ -174,7 +171,6 @@ const ChatPage: React.FC = () => {
                     </div>
                 ))}
                 
-                {/* Loading Indicator */}
                 {isLoading && (
                     <div className="flex justify-start">
                         <div className="bg-gray-700 text-white p-3 rounded-lg">
@@ -183,11 +179,9 @@ const ChatPage: React.FC = () => {
                     </div>
                 )}
                 
-                {/* Scroll anchor */}
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
             <div className="bg-gray-800 border-t border-gray-700 p-4">
                 <form onSubmit={handleSend} className="flex items-center space-x-2">
                     <input
@@ -213,7 +207,6 @@ const ChatPage: React.FC = () => {
                     </button>
                 </form>
                 
-                {/* Help text */}
                 <p className="text-xs text-gray-500 mt-2 text-center">
                     Fråga mig om Peters erfarenhet, utbildning, projekt eller tekniska färdigheter
                 </p>

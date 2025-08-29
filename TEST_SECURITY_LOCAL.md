@@ -38,7 +38,7 @@ uv run uvicorn src.main:app --reload --port 8000
 
 ```bash
 cd peterbot-ai/client
-npm install  # Om du inte gjort det
+npm install 
 npm run dev
 ```
 
@@ -52,11 +52,7 @@ npm run dev
 # Testa security headers
 curl -I http://localhost:8000/health
 
-# Du bör se headers som:
-# X-Content-Type-Options: nosniff
-# X-Frame-Options: DENY
-# X-XSS-Protection: 1; mode=block
-# Referrer-Policy: strict-origin-when-cross-origin
+
 ```
 
 ### 2. Testa Rate Limiting
