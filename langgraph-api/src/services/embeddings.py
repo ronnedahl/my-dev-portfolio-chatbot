@@ -89,5 +89,4 @@ class EmbeddingService:
         
         similarity = dot_product / (norm1 * norm2)
         
-        # Ensure the result is between 0 and 1
         return float(max(0, min(1, similarity)))

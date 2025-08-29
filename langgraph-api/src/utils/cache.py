@@ -22,7 +22,7 @@ class CacheEntry:
 class SimpleCache:
     """Simple in-memory cache for responses."""
     
-    def __init__(self, default_ttl: int = 300):  # 5 minutes default
+    def __init__(self, default_ttl: int = 300):  
         self.cache: Dict[str, CacheEntry] = {}
         self.default_ttl = default_ttl
         self.hits = 0
@@ -106,7 +106,7 @@ class SimpleCache:
         logger.info("cache_cleared")
 
 # Global cache instance
-_response_cache = SimpleCache(default_ttl=300)  # 5 minutes
+_response_cache = SimpleCache(default_ttl=300) 
 
 def get_cached_response(query: str) -> Optional[str]:
     """Get cached response for query."""

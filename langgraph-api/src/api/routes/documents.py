@@ -1,9 +1,9 @@
 """Document management endpoints."""
 
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Tuple
+
 import structlog
-from src.models import DocumentRequest, DocumentResponse, ErrorResponse
+from src.models import DocumentRequest, DocumentResponse
 from src.services import FirebaseVectorStore
 
 router = APIRouter(prefix="/documents", tags=["documents"])

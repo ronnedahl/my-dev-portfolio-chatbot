@@ -60,7 +60,6 @@ async def cleanup_expired_cache():
 async def get_vector_cache_info():
     """Get vector store cache information."""
     try:
-        # Create a temporary instance to check cache info
         vector_store = CachedVectorStore()
         cache_info = vector_store.get_cache_info()
         logger.info("vector_cache_info_requested", cache_info=cache_info)

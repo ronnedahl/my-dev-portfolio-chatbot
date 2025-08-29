@@ -27,14 +27,12 @@ async def search(request: SearchRequest) -> SearchResponse:
         
         vector_store = FirebaseVectorStore()
         
-        # Perform search
         results = await vector_store.search(
             query=request.query,
             top_k=request.top_k,
             threshold=request.threshold
         )
         
-        # Convert to response model
         search_results = [
             SearchResult(
                 id=result["id"],

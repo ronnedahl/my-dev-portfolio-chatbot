@@ -9,7 +9,6 @@ from src.config import settings
 
 logger = structlog.get_logger()
 
-# HTTP Bearer authentication
 security = HTTPBearer(auto_error=False)
 
 
@@ -88,9 +87,9 @@ class FirebaseAuth:
     @staticmethod
     async def require_admin(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
         """Require admin role for access."""
-        # Check if user has admin custom claim
+       
         if not current_user.get("admin", False):
-            # For now, check against configured admin emails
+           
             admin_emails = settings.admin_emails if hasattr(settings, 'admin_emails') else []
             if current_user.get("email") not in admin_emails:
                 logger.warning(
@@ -105,15 +104,11 @@ class FirebaseAuth:
         
         return current_user
 
-
-# Dependency shortcuts
 verify_token = FirebaseAuth.verify_token
 verify_optional_token = FirebaseAuth.verify_optional_token
 get_current_user = FirebaseAuth.get_current_user
 require_admin = FirebaseAuth.require_admin
 
-
-# API Key authentication (alternative to Firebase)
 class APIKeyAuth:
     """API Key authentication for service-to-service communication."""
     
@@ -121,10 +116,8 @@ class APIKeyAuth:
     async def verify_api_key(api_key: str = Security(HTTPBearer())) -> bool:
         """Verify API key."""
         if not hasattr(settings, 'api_keys') or not settings.api_keys:
-            # API key auth not configured
             return False
         
-        # Check if provided key is valid
         if api_key.credentials in settings.api_keys:
             logger.info("api_key_authenticated")
             return True

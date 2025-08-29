@@ -9,11 +9,9 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
-    
-    # OpenAI Configuration
+
     openai_api_key: str = Field(..., env="OPENAI_API_KEY")
     
-    # Firebase Configuration
     firebase_project_id: str = Field(..., env="FIREBASE_PROJECT_ID")
     firebase_private_key_id: str = Field(..., env="FIREBASE_PRIVATE_KEY_ID")
     firebase_private_key: str = Field(..., env="FIREBASE_PRIVATE_KEY")
@@ -37,13 +35,11 @@ class Settings(BaseSettings):
         env="FIREBASE_COLLECTION_NAME"
     )
     
-    # API Configuration
     api_host: str = Field(default="0.0.0.0", env="API_HOST")
     api_port: int = Field(default=8000, env="API_PORT")
     api_env: str = Field(default="development", env="API_ENV")
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
     
-    # Vector Store Configuration
     embedding_model: str = Field(
         default="text-embedding-3-small",
         env="EMBEDDING_MODEL"
@@ -52,13 +48,11 @@ class Settings(BaseSettings):
     similarity_threshold: float = Field(default=0.7, env="SIMILARITY_THRESHOLD")
     max_search_results: int = Field(default=5, env="MAX_SEARCH_RESULTS")
     
-    # Performance Configuration
     request_timeout: int = Field(default=30, env="REQUEST_TIMEOUT")
     llm_timeout: int = Field(default=15, env="LLM_TIMEOUT")  
     vector_search_timeout: int = Field(default=10, env="VECTOR_SEARCH_TIMEOUT")
     max_concurrent_requests: int = Field(default=10, env="MAX_CONCURRENT_REQUESTS")
     
-    # Security Configuration
     admin_emails: list[str] = Field(default_factory=list, env="ADMIN_EMAILS")
     api_keys: list[str] = Field(default_factory=list, env="API_KEYS")
     allowed_origins: list[str] = Field(
@@ -80,7 +74,6 @@ class Settings(BaseSettings):
     
     def get_firebase_credentials(self) -> dict:
         """Get Firebase credentials as a dictionary."""
-        # Handle private key newlines
         private_key = self.firebase_private_key.replace("\\n", "\n")
         
         return {
@@ -106,6 +99,4 @@ class Settings(BaseSettings):
         """Check if running in production mode."""
         return self.api_env == "production"
 
-
-# Create singleton instance
 settings = Settings()

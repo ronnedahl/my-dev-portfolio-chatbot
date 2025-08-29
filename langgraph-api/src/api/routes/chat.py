@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 import structlog
 import asyncio
-from src.models import ChatRequest, ChatResponse, ErrorResponse
+from src.models import ChatRequest, ChatResponse
 from src.core.agent import run_agent
 from src.utils.quick_responses import get_quick_response
 from src.utils.cache import get_cached_response, cache_response
@@ -29,7 +29,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
             user_id=request.user_id
         )
         
-        # Check for quick response first (avoid LLM calls for simple queries)
         quick_response = get_quick_response(request.query)
         if quick_response:
             logger.info(
@@ -43,7 +42,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 retrieved_context=[]
             )
         
-        # Check cache for previous responses
         cached_response = get_cached_response(request.query)
         if cached_response:
             logger.info(
@@ -57,7 +55,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 retrieved_context=[]
             )
         
-        # Run the full agent for complex queries with timeout
         try:
             result = await asyncio.wait_for(
                 run_agent(
@@ -79,7 +76,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 detail=f"Request timed out after {settings.request_timeout} seconds"
             )
         
-        # Check for errors
         if result.get("error"):
             logger.error(
                 "chat_agent_error",
@@ -91,7 +87,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 detail=f"Agent error: {result['error']}"
             )
         
-        # Create response
         response = ChatResponse(
             response=result["response"],
             conversation_id=result["conversation_id"],
@@ -105,7 +100,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
             ]
         )
         
-        # Cache the response for future use (5 minutes TTL)
         if result["response"] and not result.get("error"):
             cache_response(request.query, result["response"], ttl=300)
         
