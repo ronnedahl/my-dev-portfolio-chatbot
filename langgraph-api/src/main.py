@@ -11,7 +11,6 @@ from src.config import settings
 from src.utils import setup_logging
 from src.middleware import setup_security_middleware
 
-# Setup logging
 setup_logging()
 logger = structlog.get_logger()
 
@@ -19,7 +18,7 @@ logger = structlog.get_logger()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
-    # Startup
+    
     logger.info(
         "application_starting",
         environment=settings.api_env,
@@ -27,11 +26,9 @@ async def lifespan(app: FastAPI):
         port=settings.api_port
     )
     yield
-    # Shutdown
+    
     logger.info("application_shutting_down")
 
-
-# Create FastAPI app
 app = FastAPI(
     title="Peterbot LangGraph API",
     description="AI assistant API with Firebase vector store and LangGraph",
@@ -39,10 +36,8 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Setup security middleware (Helmet-like headers and rate limiting)
 setup_security_middleware(app)
 
-# Configure CORS (MUST be after security middleware to handle preflight requests correctly)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -59,8 +54,6 @@ app.add_middleware(
     expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]
 )
 
-
-# Exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler."""
@@ -79,8 +72,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
-
-# Include routers
 app.include_router(health.router)
 app.include_router(chat.router)
 app.include_router(documents.router)
@@ -95,7 +86,7 @@ def run():
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.is_development,
-        log_config=None  # We handle logging ourselves
+        log_config=None  
     )
 
 

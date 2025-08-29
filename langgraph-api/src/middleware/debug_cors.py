@@ -11,7 +11,6 @@ class CORSDebugMiddleware(BaseHTTPMiddleware):
     """Debug CORS requests to understand what's happening."""
     
     async def dispatch(self, request: Request, call_next):
-        # Log all request details for debugging
         logger.info(
             "cors_debug_request",
             method=request.method,
@@ -21,10 +20,8 @@ class CORSDebugMiddleware(BaseHTTPMiddleware):
             host=request.headers.get("host")
         )
         
-        # Process request
         response = await call_next(request)
         
-        # Log response details
         logger.info(
             "cors_debug_response", 
             status_code=response.status_code,

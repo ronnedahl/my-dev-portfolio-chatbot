@@ -21,18 +21,14 @@ class AgentState(TypedDict):
     should_retrieve: bool
     retrieval_complete: bool
     
-    # Response planning
     response_plan: Optional[str]
     
-    # Final response
     final_response: Optional[str]
     
     # Metadata
     conversation_id: Optional[str]
     user_id: Optional[str]
     
-    # Error handling
     error: Optional[str]
     
-    # Additional context
     additional_context: Dict[str, Any]

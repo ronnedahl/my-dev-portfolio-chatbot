@@ -16,19 +16,18 @@ GREETING_PATTERNS = [
     r'^(bra\s+dag|ha\s+en\s+bra\s+dag)\.?!?$'
 ]
 
-# Simple question patterns that need quick answers
 QUICK_PATTERNS = {
     r'^(vad\s+heter\s+du|what.+name)': {
-        'sv': "Hej! Jag heter Peter och jag är 51 år gammal. Vad vill du veta om mig?",
-        'en': "Hi! My name is Peter and I'm 51 years old. What would you like to know about me?"
+        'sv': "Hej! Jag heter Peter och jag är 52 år gammal. Vad vill du veta om mig?",
+        'en': "Hi! My name is Peter and I'm 52 years old. What would you like to know about me?"
     },
     r'^(hur\s+mår\s+du|how\s+are\s+you)': {
         'sv': "Tack för att du frågar! Jag mår bra och är redo att berätta om mig själv. Vad är du nyfiken på?",
         'en': "Thanks for asking! I'm doing well and ready to tell you about myself. What are you curious about?"
     },
     r'^(vem\s+är\s+du|who\s+are\s+you)': {
-        'sv': "Jag är Peter, en 51-årig webbutvecklare med passion för AI och teknik. Vad vill du veta mer om?",
-        'en': "I'm Peter, a 51-year-old web developer with a passion for AI and technology. What would you like to know more about?"
+        'sv': "Jag är Peter, en 52-årig webbutvecklare med passion för AI och teknik. Vad vill du veta mer om?",
+        'en': "I'm Peter, a 52-year-old web developer with a passion for AI and technology. What would you like to know more about?"
     }
 }
 
@@ -72,7 +71,6 @@ def get_quick_response(query: str) -> Optional[str]:
     
     logger.info("checking_quick_response", query=query[:50], language=language)
     
-    # Check for simple greetings
     for pattern in GREETING_PATTERNS:
         if re.match(pattern, query_clean, re.IGNORECASE):
             import random
@@ -80,7 +78,6 @@ def get_quick_response(query: str) -> Optional[str]:
             logger.info("quick_greeting_response", pattern=pattern, language=language)
             return response
     
-    # Check for quick question patterns
     for pattern, responses in QUICK_PATTERNS.items():
         if re.search(pattern, query_clean, re.IGNORECASE):
             logger.info("quick_pattern_response", pattern=pattern, language=language)

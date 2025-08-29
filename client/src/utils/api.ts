@@ -1,11 +1,5 @@
-/**
- * API configuration and utilities
- */
-
-// API base URL from environment variable
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-// API endpoints
 export const API_ENDPOINTS = {
   chat: `${API_BASE_URL}/chat/`,
   documents: `${API_BASE_URL}/documents/`,
@@ -19,7 +13,6 @@ export const API_ENDPOINTS = {
   }
 };
 
-// Default request headers
 export const getDefaultHeaders = (token?: string) => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -32,7 +25,6 @@ export const getDefaultHeaders = (token?: string) => {
   return headers;
 };
 
-// Error handling wrapper
 export class APIError extends Error {
   status: number;
   data: any;
@@ -45,7 +37,6 @@ export class APIError extends Error {
   }
 }
 
-// Generic fetch wrapper with error handling and timeout
 export async function apiFetch<T>(
   url: string,
   options: RequestInit = {},
@@ -97,7 +88,6 @@ export async function apiFetch<T>(
   }
 }
 
-// Chat API functions
 export interface ChatRequest {
   query: string;
   conversation_id?: string;
@@ -123,12 +113,10 @@ export async function sendChatMessage(request: ChatRequest): Promise<ChatRespons
   });
 }
 
-// Health check
 export async function checkHealth(): Promise<{ status: string; timestamp: string }> {
   return apiFetch(API_ENDPOINTS.health);
 }
 
-// Admin API functions (requires authentication)
 export async function getCacheStats(token: string) {
   return apiFetch(API_ENDPOINTS.admin.cacheStats, {
     headers: getDefaultHeaders(token),

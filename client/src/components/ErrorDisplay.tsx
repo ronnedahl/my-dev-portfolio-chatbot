@@ -13,17 +13,17 @@ interface ErrorAction {
 }
 
 interface ErrorDisplayProps {
-    /** Error code (e.g., "404", "500") */
+    
     code: string;
-    /** Main error title */
+   
     title: string;
-    /** Error description */
+   
     description: string;
-    /** List of possible reasons for the error */
+   
     reasons?: string[];
-    /** Custom actions for the error */
+   
     actions?: ErrorAction[];
-    /** Additional footer message */
+  
     footerMessage?: string;
 }
 
@@ -74,7 +74,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
             <div className="max-w-md w-full text-center">
-                {/* Header with profile */}
+               
                 <div className="mb-8">
                     <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-blue-500 mx-auto mb-4">
                         <img 
@@ -87,11 +87,9 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                     <p className="text-gray-400">{description}</p>
                 </div>
 
-                {/* Error Code Visual */}
                 <div className="mb-8">
                     <div className="text-8xl font-bold text-blue-500 mb-4">{code}</div>
                     
-                    {/* Reasons section (if provided) */}
                     {reasons.length > 0 && (
                         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
                             <p className="text-gray-300 mb-4">Det kan bero på att:</p>
@@ -107,7 +105,6 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                     )}
                 </div>
 
-                {/* Action buttons */}
                 <div className="space-y-3">
                     {actions.map((action, index) => {
                         const Icon = action.icon;
@@ -131,7 +128,6 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                     })}
                 </div>
 
-                {/* Footer message */}
                 {footerMessage && (
                     <div className="mt-8 pt-6 border-t border-gray-700">
                         <p className="text-xs text-gray-500">{footerMessage}</p>

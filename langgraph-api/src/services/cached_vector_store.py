@@ -3,7 +3,6 @@
 import asyncio
 import time
 from typing import List, Dict, Any, Optional
-import numpy as np
 import structlog
 from src.services.firebase_vector_store import FirebaseVectorStore
 from src.services.embeddings import EmbeddingService
@@ -27,14 +26,12 @@ class CachedVectorStore:
         try:
             logger.info("refreshing_document_cache")
             
-            # Fetch all documents from Firebase
             docs = self.firebase_store.db.collection(self.firebase_store.collection_name).stream()
             
             cached_docs = []
             for doc in docs:
                 doc_data = doc.to_dict()
                 
-                # Try different embedding field names
                 embedding_field = None
                 if "embedding" in doc_data:
                     embedding_field = "embedding"
@@ -44,7 +41,7 @@ class CachedVectorStore:
                     embedding_field = "vector"
                 
                 if embedding_field and doc_data[embedding_field]:
-                    # Try different text field names
+                   
                     text_content = (
                         doc_data.get("text") or 
                         doc_data.get("content") or 
@@ -73,7 +70,7 @@ class CachedVectorStore:
             
         except Exception as e:
             logger.error("cache_refresh_failed", error=str(e))
-            # Keep old cache if refresh fails
+           
             if self.documents_cache is None:
                 self.documents_cache = []
     
@@ -81,12 +78,11 @@ class CachedVectorStore:
         """Ensure cache is fresh, refresh if needed."""
         current_time = time.time()
         
-        # Check if cache needs refresh
         if (self.documents_cache is None or 
             current_time - self.cache_timestamp > self.cache_ttl):
             
             async with self.cache_lock:
-                # Double-check after acquiring lock
+               
                 if (self.documents_cache is None or 
                     current_time - self.cache_timestamp > self.cache_ttl):
                     await self._refresh_cache()
@@ -140,7 +136,6 @@ class CachedVectorStore:
                         "updated_at": doc.get("updated_at")
                     })
             
-            # Sort by similarity and return top k
             results.sort(key=lambda x: x["similarity"], reverse=True)
             results = results[:top_k]
             
@@ -159,7 +154,7 @@ class CachedVectorStore:
             
         except Exception as e:
             logger.error("cached_search_failed", error=str(e), query=query[:100])
-            # Fallback to original Firebase search
+            
             logger.info("falling_back_to_firebase_search")
             return await self.firebase_store.search(query, top_k, threshold)
     
@@ -171,7 +166,7 @@ class CachedVectorStore:
     ) -> str:
         """Add document and invalidate cache."""
         result = await self.firebase_store.add_document(text, metadata, document_id)
-        # Invalidate cache so it gets refreshed on next search
+       
         self.cache_timestamp = 0
         logger.info("document_added_cache_invalidated", document_id=result)
         return result
@@ -184,7 +179,7 @@ class CachedVectorStore:
     ) -> bool:
         """Update document and invalidate cache."""
         result = await self.firebase_store.update_document(document_id, text, metadata)
-        # Invalidate cache so it gets refreshed on next search
+       
         self.cache_timestamp = 0
         logger.info("document_updated_cache_invalidated", document_id=document_id)
         return result
@@ -192,7 +187,7 @@ class CachedVectorStore:
     async def delete_document(self, document_id: str) -> bool:
         """Delete document and invalidate cache."""
         result = await self.firebase_store.delete_document(document_id)
-        # Invalidate cache so it gets refreshed on next search
+      
         self.cache_timestamp = 0
         logger.info("document_deleted_cache_invalidated", document_id=document_id)
         return result

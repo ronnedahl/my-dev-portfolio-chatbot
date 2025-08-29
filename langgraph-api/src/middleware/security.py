@@ -18,18 +18,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
         
-        # Security headers (Helmet-like for FastAPI)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
         
-        # HSTS (HTTP Strict Transport Security)
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         
-        # Remove server header (if present)
         if "server" in response.headers:
             del response.headers["server"]
         
@@ -48,7 +45,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     
     def _get_client_ip(self, request: Request) -> str:
         """Get client IP address from request."""
-        # Check for reverse proxy headers
+       
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
@@ -135,20 +132,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 def setup_security_middleware(app: FastAPI):
     """Setup all security middleware for the application."""
     from src.config import settings
-    
-    # Debug middleware disabled - uncomment if needed for debugging
-    # if settings.is_development:
-    #     from src.middleware.debug_cors import CORSDebugMiddleware
-    #     app.add_middleware(CORSDebugMiddleware)
-    
-    # Add security headers
+
     app.add_middleware(SecurityHeadersMiddleware)
     
-    # Add rate limiting
     app.add_middleware(
         RateLimitMiddleware,
-        calls_per_minute=60,  # 60 requests per minute
-        calls_per_hour=1000   # 1000 requests per hour
+        calls_per_minute=60,  
+        calls_per_hour=1000   
     )
     
     # Only add TrustedHostMiddleware in production to avoid CORS issues in development

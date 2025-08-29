@@ -1,21 +1,130 @@
-"""LangGraph nodes for processing logic."""
+"""LangGraph node implementations for agent workflow orchestration."""
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage
 import structlog
+
 from src.services.cached_vector_store import CachedVectorStore
+from src.services.query_analyzer import QueryAnalyzer
+from src.services.response_generator import ResponseGenerator
 from src.config import settings
 from .state import AgentState
+from .base_node import BaseNode
 
 logger = structlog.get_logger()
 
 
+class AnalysisNode(BaseNode):
+    """Analyzes incoming queries to determine processing requirements."""
+    
+    def __init__(self, llm: ChatOpenAI):
+        self.analyzer = QueryAnalyzer(llm)
+    
+    async def process(self, state: AgentState) -> Dict[str, Any]:
+        """Analyze query and determine if retrieval is needed."""
+        try:
+            should_retrieve, reason = await self.analyzer.requires_retrieval(state["query"])
+            
+            return {
+                "should_retrieve": should_retrieve,
+                "messages": self._add_system_message(
+                    state["messages"], 
+                    f"Query analysis: {reason}"
+                )
+            }
+        except Exception as e:
+            return self._handle_error(e, "query_analysis")
+
+
+class RetrievalNode(BaseNode):
+    """Handles context retrieval from the vector store."""
+    
+    def __init__(self, vector_store: CachedVectorStore):
+        self.vector_store = vector_store
+    
+    async def process(self, state: AgentState) -> Dict[str, Any]:
+        """Retrieve relevant context from vector store."""
+        try:
+            results = await self.vector_store.search(
+                query=state["query"],
+                top_k=settings.max_search_results,
+                threshold=settings.similarity_threshold
+            )
+            
+            logger.info(
+                "context_retrieved",
+                query=state["query"][:100],
+                results_count=len(results)
+            )
+            
+            return {
+                "retrieved_context": results,
+                "retrieval_complete": True,
+                "messages": self._add_system_message(
+                    state["messages"],
+                    f"Retrieved {len(results)} relevant documents from knowledge base"
+                )
+            }
+        except Exception as e:
+            return {
+                **self._handle_error(e, "context_retrieval"),
+                "retrieval_complete": True,
+                "retrieved_context": []
+            }
+
+
+class ResponseNode(BaseNode):
+    """Generates AI responses using retrieved context."""
+    
+    def __init__(self, llm: ChatOpenAI):
+        self.generator = ResponseGenerator(llm)
+    
+    async def process(self, state: AgentState) -> Dict[str, Any]:
+        """Generate response based on query and context."""
+        try:
+            response = await self.generator.generate(
+                query=state["query"],
+                context=state.get("retrieved_context", []),
+                plan=state.get("response_plan")
+            )
+            
+            return {
+                "final_response": response,
+                "messages": state["messages"] + [
+                    HumanMessage(content=state["query"]),
+                    AIMessage(content=response)
+                ]
+            }
+        except Exception as e:
+            return self._handle_error(
+                e, 
+                "response_generation",
+                "I apologize, but I encountered an error. Please try again."
+            )
+
+
+class DirectResponseNode(BaseNode):
+    """Handles queries that don't require retrieval."""
+    
+    async def process(self, state: AgentState) -> Dict[str, Any]:
+        """Skip retrieval and prepare for direct response."""
+        return {
+            "retrieval_complete": True,
+            "retrieved_context": [],
+            "messages": self._add_system_message(
+                state["messages"],
+                "Skipping retrieval - answering directly"
+            )
+        }
+
+
 class Nodes:
-    """Collection of nodes for the LangGraph agent."""
+    """Node orchestrator providing backward compatibility and workflow management."""
     
     def __init__(self):
-        """Initialize nodes with required services."""
+        """Initialize all node instances with shared dependencies."""
+        # Shared LLM instance with optimized settings
         self.llm = ChatOpenAI(
             openai_api_key=settings.openai_api_key,
             model="gpt-4o-mini",
@@ -23,280 +132,32 @@ class Nodes:
             timeout=settings.llm_timeout,
             max_retries=2
         )
-        self.vector_store = CachedVectorStore(cache_ttl=300)  # 5 minutes cache
+        
+        # Shared vector store with caching
+        self.vector_store = CachedVectorStore(cache_ttl=300)
+        
+        # Initialize node instances
+        self._analysis_node = AnalysisNode(self.llm)
+        self._retrieval_node = RetrievalNode(self.vector_store)
+        self._response_node = ResponseNode(self.llm)
+        self._direct_node = DirectResponseNode()
     
     async def analyze_query(self, state: AgentState) -> Dict[str, Any]:
-        """
-        Analyze the user query to determine if retrieval is needed.
-        
-        This node examines the query and decides whether to search
-        the knowledge base or answer directly.
-        """
-        try:
-            query = state["query"]
-            
-            # System prompt for query analysis
-            system_prompt = """You are analyzing queries for Peter's personal AI assistant.
-            Users will ask questions directly to Peter using "you", "your", etc.
-            
-            Return "yes" if the query is about:
-            - Personal details (age, location, background, family) - e.g. "How old are you?", "Where do you live?"
-            - Skills, experience, or work history - e.g. "What's your experience?", "What do you do?"
-            - Education, projects, achievements - e.g. "What did you study?", "Your projects?"
-            - CV or resume information - e.g. "Your qualifications?"
-            - Contact information - e.g. "How can I contact you?"
-            - Any specific facts, preferences, or characteristics
-            - Questions using "you", "your", "yours" referring to personal information
-            - Questions mentioning Peter by name or "him"
-            
-            Return "no" ONLY if the query is:
-            - General knowledge questions not about personal information
-            - Pure greetings like "hello" or "hi"
-            - Questions about how the AI system works
-            - Requests for general help not related to personal information
-            
-            When in doubt, return "yes" - it's better to search than miss information.
-            
-            Only respond with "yes" or "no"."""
-            
-            messages = [
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=f"Query: {query}")
-            ]
-            
-            response = await self.llm.ainvoke(messages)
-            should_retrieve = response.content.strip().lower() == "yes"
-            
-            logger.info(
-                "query_analyzed",
-                query=query[:100],
-                should_retrieve=should_retrieve
-            )
-            
-            return {
-                "should_retrieve": should_retrieve,
-                "messages": state["messages"] + [
-                    {"role": "system", "content": f"Query analysis: {'retrieve' if should_retrieve else 'direct answer'}"}
-                ]
-            }
-            
-        except Exception as e:
-            logger.error("query_analysis_failed", error=str(e))
-            return {"error": str(e)}
+        """Delegate to AnalysisNode for backward compatibility."""
+        return await self._analysis_node.process(state)
     
     async def retrieve_context(self, state: AgentState) -> Dict[str, Any]:
-        """
-        Retrieve relevant context from Firebase vector store.
-        
-        This node searches for relevant information based on the query.
-        """
-        try:
-            query = state["query"]
-            
-            # Search for relevant documents
-            results = await self.vector_store.search(
-                query=query,
-                top_k=settings.max_search_results,
-                threshold=settings.similarity_threshold
-            )
-            
-            logger.info(
-                "context_retrieved",
-                query=query[:100],
-                results_count=len(results)
-            )
-            
-            return {
-                "retrieved_context": results,
-                "retrieval_complete": True,
-                "messages": state["messages"] + [
-                    {
-                        "role": "system",
-                        "content": f"Retrieved {len(results)} relevant documents from knowledge base"
-                    }
-                ]
-            }
-            
-        except Exception as e:
-            logger.error("context_retrieval_failed", error=str(e))
-            return {
-                "error": str(e),
-                "retrieval_complete": True,
-                "retrieved_context": []
-            }
+        """Delegate to RetrievalNode for backward compatibility."""
+        return await self._retrieval_node.process(state)
     
     async def plan_and_generate_response(self, state: AgentState) -> Dict[str, Any]:
-        """
-        Plan and generate the response in one step for better performance.
-        
-        This combines response planning and generation to reduce LLM calls.
-        """
-        try:
-            query = state["query"]
-            context = state.get("retrieved_context", [])
-            
-            # Build context for response generation
-            context_str = ""
-            if context:
-                context_str = "\n\nRelevant information:\n"
-                for doc in context:
-                    context_str += f"- {doc['text']}\n"
-                    if doc.get("metadata"):
-                        for key, value in doc["metadata"].items():
-                            context_str += f"  {key}: {value}\n"
-            
-            # System prompt for combined planning and response generation
-            system_prompt = """You ARE Peter speaking directly to visitors on your portfolio website.
-            Answer questions about yourself in FIRST PERSON using "I", "my", "me".
-            
-            Important instructions:
-            - Speak AS Peter, not about Peter
-            - Use "I am 51 years old" NOT "Peter is 51 years old"
-            - Use "my experience" NOT "Peter's experience"
-            - Be friendly, professional, and personable
-            - Use the context provided to give accurate information about yourself
-            - If you don't have specific information, say "I haven't included that information"
-            
-            Response style:
-            - Conversational and welcoming
-            - Professional but approachable
-            - Share your enthusiasm for web development and AI
-            - Be genuine and authentic
-            
-            Example responses:
-            - "I'm 51 years old but feel like I'm 35!"
-            - "I have 5 years of experience with Python"
-            - "My passion is web development and AI"
-            
-            Language: Respond in the same language as the question (Swedish or English)"""
-            
-            user_prompt = f"""Query: {query}{context_str}
-            
-            Please provide a helpful response to the user's query."""
-            
-            messages = [
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=user_prompt)
-            ]
-            
-            response = await self.llm.ainvoke(messages)
-            final_response = response.content
-            
-            logger.info(
-                "combined_response_generated",
-                query=query[:100],
-                response_length=len(final_response)
-            )
-            
-            return {
-                "final_response": final_response,
-                "response_plan": "Combined planning and generation",
-                "messages": state["messages"] + [
-                    HumanMessage(content=query),
-                    AIMessage(content=final_response)
-                ]
-            }
-            
-        except Exception as e:
-            logger.error("combined_response_generation_failed", error=str(e))
-            return {
-                "error": str(e),
-                "final_response": "I apologize, but I encountered an error while generating a response. Please try again."
-            }
+        """Combined planning and generation for optimized performance."""
+        return await self._response_node.process(state)
     
     async def generate_response(self, state: AgentState) -> Dict[str, Any]:
-        """
-        Generate the final response based on the plan.
-        
-        This node creates the actual response to send to the user.
-        """
-        try:
-            query = state["query"]
-            context = state.get("retrieved_context", [])
-            plan = state.get("response_plan", "")
-            
-            # Build context for response generation
-            context_str = ""
-            if context:
-                context_str = "\n\nRelevant information:\n"
-                for doc in context:
-                    context_str += f"- {doc['text']}\n"
-                    if doc.get("metadata"):
-                        for key, value in doc["metadata"].items():
-                            context_str += f"  {key}: {value}\n"
-            
-            # System prompt for response generation
-            system_prompt = """You ARE Peter speaking directly to visitors on your portfolio website.
-            Answer questions about yourself in FIRST PERSON using "I", "my", "me".
-            
-            Important instructions:
-            - Speak AS Peter, not about Peter
-            - Use "I am 51 years old" NOT "Peter is 51 years old"
-            - Use "my experience" NOT "Peter's experience"
-            - Be friendly, professional, and personable
-            - Use the context provided to give accurate information about yourself
-            - If you don't have specific information, say "I haven't included that information"
-            
-            Response style:
-            - Conversational and welcoming
-            - Professional but approachable
-            - Share your enthusiasm for web development and AI
-            - Be genuine and authentic
-            
-            Example responses:
-            - "I'm 51 years old but feel like I'm 35!"
-            - "I have 5 years of experience with Python"
-            - "My passion is web development and AI"
-            
-            Language: Respond in the same language as the question (Swedish or English)"""
-            
-            user_prompt = f"""Query: {query}
-            
-            {context_str}
-            
-            Response plan: {plan}
-            
-            Please provide a helpful response to the user's query."""
-            
-            messages = [
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=user_prompt)
-            ]
-            
-            response = await self.llm.ainvoke(messages)
-            final_response = response.content
-            
-            logger.info(
-                "response_generated",
-                query=query[:100],
-                response_length=len(final_response)
-            )
-            
-            return {
-                "final_response": final_response,
-                "messages": state["messages"] + [
-                    HumanMessage(content=query),
-                    AIMessage(content=final_response)
-                ]
-            }
-            
-        except Exception as e:
-            logger.error("response_generation_failed", error=str(e))
-            return {
-                "error": str(e),
-                "final_response": "I apologize, but I encountered an error while generating a response. Please try again."
-            }
+        """Delegate to ResponseNode for backward compatibility."""
+        return await self._response_node.process(state)
     
     async def skip_retrieval(self, state: AgentState) -> Dict[str, Any]:
-        """
-        Skip retrieval for queries that don't need it.
-        
-        This node handles direct responses without searching the knowledge base.
-        """
-        return {
-            "retrieval_complete": True,
-            "retrieved_context": [],
-            "messages": state["messages"] + [
-                {"role": "system", "content": "Skipping retrieval - answering directly"}
-            ]
-        }
+        """Delegate to DirectResponseNode for backward compatibility."""
+        return await self._direct_node.process(state)

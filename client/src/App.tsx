@@ -11,23 +11,18 @@ const App: React.FC = () => {
     <Router>
       <div className="min-h-screen bg-gray-900 text-white">
         <Routes>
-          {/* Default route redirects to chat */}
+         
           <Route path="/" element={<Navigate to="/chat" replace />} />
           
-          {/* Main chat interface */}
           <Route path="/chat" element={<ChatPage />} />
           
-          {/* Admin login */}
           <Route path="/login" element={<LoginPage />} />
           
-          {/* Admin panel */}
           <Route path="/admin" element={<AdminPage />} />
           
-          {/* Error pages */}
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="/500" element={<ServerErrorPage />} />
           
-          {/* 404 Not Found - Catch all route */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

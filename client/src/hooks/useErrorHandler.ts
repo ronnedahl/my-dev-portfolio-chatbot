@@ -6,17 +6,12 @@ interface UseErrorHandlerReturn {
     navigateToError: (errorType: '404' | '500') => void;
 }
 
-/**
- * Custom hook for centralized error handling
- * Provides consistent error handling across the application
- */
 export const useErrorHandler = (): UseErrorHandlerReturn => {
     const navigate = useNavigate();
 
     const handleError = (error: Error | APIError | unknown): void => {
         console.error('Error handled by useErrorHandler:', error);
 
-        // Handle API errors
         if (error instanceof APIError) {
             switch (error.status) {
                 case 404:
@@ -29,23 +24,21 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
                     navigate('/500', { replace: true });
                     break;
                 case 429:
-                    // Rate limit error - could show a specific message or stay on current page
+                    
                     console.warn('Rate limit exceeded');
                     break;
                 default:
-                    // For other API errors, log but don't navigate
+                   
                     console.error('API Error:', error.message);
             }
             return;
         }
 
-        // Handle network errors
         if (error instanceof TypeError && error.message.includes('fetch')) {
             navigate('/500', { replace: true });
             return;
         }
 
-        // Handle generic errors
         if (error instanceof Error) {
             console.error('Generic error:', error.message);
         } else {

@@ -1,4 +1,3 @@
-// Common types used throughout the application
 
 export interface SkillType {
     title: string;

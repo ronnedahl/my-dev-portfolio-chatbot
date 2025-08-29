@@ -6,21 +6,26 @@ WORKDIR /app
 
 # Installera systempaket
 RUN apt-get update && apt-get install -y \
+    curl \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Kopiera requirements först för bättre caching
-COPY requirements-production.txt requirements.txt ./
-RUN pip install --no-cache-dir -r requirements-production.txt
+# Installera UV för snabbare pakethantering
+RUN pip install uv
 
-# Kopiera applikationskod
-COPY src/ ./src/
-COPY gunicorn.conf.py ./
+# Kopiera alla projektfiler först (för UV)
+COPY . .
+
+# Installera dependencies med UV som root
+RUN uv sync
 
 # Skapa non-root användare för säkerhet
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN chown -R appuser:appuser /app
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && mkdir -p /home/appuser/.cache \
+    && chown -R appuser:appuser /app /home/appuser/.cache
+
+# Växla till appuser
 USER appuser
 
 # Exponera port
@@ -28,7 +33,7 @@ EXPOSE 8000
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Starta med Gunicorn
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "src.main:app"]
+# Starta med UV och Gunicorn
+CMD ["uv", "run", "gunicorn", "-c", "gunicorn.conf.py", "src.main:app"]

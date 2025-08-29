@@ -10,14 +10,12 @@ from src.config import settings
 def setup_logging():
     """Configure structured logging for the application."""
     
-    # Set up standard logging
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
         level=getattr(logging, settings.log_level.upper())
     )
     
-    # Configure structlog
     structlog.configure(
         processors=[
             structlog.stdlib.filter_by_level,
