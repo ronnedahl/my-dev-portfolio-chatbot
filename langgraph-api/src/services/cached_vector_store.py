@@ -26,34 +26,24 @@ class CachedVectorStore:
         try:
             logger.info("refreshing_document_cache")
             
-            docs = self.firebase_store.db.collection(self.firebase_store.collection_name).stream()
+            # Access the collection through the firebase connection
+            collection = self.firebase_store.firebase.get_collection(self.firebase_store.collection_name)
+            docs = collection.stream()
             
             cached_docs = []
             for doc in docs:
                 doc_data = doc.to_dict()
                 
-                embedding_field = None
-                if "embedding" in doc_data:
-                    embedding_field = "embedding"
-                elif "embeddings" in doc_data:
-                    embedding_field = "embeddings"
-                elif "vector" in doc_data:
-                    embedding_field = "vector"
+                # Use the document processor for consistency
+                embedding = self.firebase_store.processor.extract_embedding(doc_data)
                 
-                if embedding_field and doc_data[embedding_field]:
-                   
-                    text_content = (
-                        doc_data.get("text") or 
-                        doc_data.get("content") or 
-                        doc_data.get("chunk") or 
-                        doc_data.get("document") or
-                        str(doc_data.get("data", ""))
-                    )
+                if embedding:
+                    text_content = self.firebase_store.processor.extract_text_content(doc_data)
                     
                     cached_docs.append({
                         "id": doc.id,
                         "text": text_content,
-                        "embedding": doc_data[embedding_field],
+                        "embedding": embedding,
                         "metadata": doc_data.get("metadata", {}),
                         "created_at": doc_data.get("created_at"),
                         "updated_at": doc_data.get("updated_at")
@@ -70,7 +60,7 @@ class CachedVectorStore:
             
         except Exception as e:
             logger.error("cache_refresh_failed", error=str(e))
-           
+            # Ensure cache is initialized even on failure
             if self.documents_cache is None:
                 self.documents_cache = []
     
