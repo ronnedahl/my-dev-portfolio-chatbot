@@ -4,7 +4,7 @@ services:
   # Backend (Development mode med hot reload)
   backend-dev:
     build:
-      context: ./langgraph-api
+      context: ./backend
       dockerfile: Dockerfile.dev
     container_name: peterbot-backend-dev
     ports:
@@ -18,7 +18,7 @@ services:
       - SERVICE_ACCOUNT_KEY=${SERVICE_ACCOUNT_KEY}
       - LOG_LEVEL=DEBUG
     volumes:
-      - ./langgraph-api:/app
+      - ./backend:/app
       - /app/.venv  # Exclude .venv from volume mount
     networks:
       - peterbot-dev-network
@@ -27,7 +27,7 @@ services:
   # Frontend (Development mode)
   frontend-dev:
     build:
-      context: ./client
+      context: ./frontend
       dockerfile: Dockerfile.dev
     container_name: peterbot-frontend-dev
     ports:
@@ -41,7 +41,7 @@ services:
       - VITE_FIREBASE_MESSAGING_SENDER_ID=${VITE_FIREBASE_MESSAGING_SENDER_ID}
       - VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID}
     volumes:
-      - ./client:/app
+      - ./frontend:/app
       - /app/node_modules  # Exclude node_modules from volume mount
     networks:
       - peterbot-dev-network

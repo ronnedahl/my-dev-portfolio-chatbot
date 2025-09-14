@@ -5,13 +5,13 @@
 ### 1. Uppdatera backend dependencies
 
 ```bash
-cd peterbot-ai/langgraph-api
+cd peterbot-ai/backend
 uv sync
 ```
 
 ### 2. Skapa test .env fil för backend
 
-Skapa/uppdatera `.env` i `langgraph-api/` med:
+Skapa/uppdatera `.env` i `backend/` med:
 
 ```env
 # Existerande variabler...
@@ -28,7 +28,7 @@ LOG_LEVEL=DEBUG
 ### 1. Starta backend med säkerhet aktiverad
 
 ```bash
-cd peterbot-ai/langgraph-api
+cd peterbot-ai/backend
 uv run uvicorn src.main:app --reload --port 8000
 ```
 
@@ -37,7 +37,7 @@ uv run uvicorn src.main:app --reload --port 8000
 Öppna ny terminal:
 
 ```bash
-cd peterbot-ai/client
+cd peterbot-ai/frontend
 npm install 
 npm run dev
 ```
@@ -160,9 +160,9 @@ def test_security_headers():
     
     for header in security_headers:
         if header in headers:
-            print(f"✅ {header}: {headers[header]}")
+            print(f"OK {header}: {headers[header]}")
         else:
-            print(f"❌ {header}: Missing")
+            print(f"X {header}: Missing")
 
 def test_rate_limiting():
     print("\nTesting rate limiting...")
@@ -185,7 +185,7 @@ def test_rate_limiting():
                 print(f"Request {i+1}: Status {response.status_code}")
                 
             if response.status_code == 429:
-                print("✅ Rate limiting works! Got 429 Too Many Requests")
+                print("Rate limiting works! Got 429 Too Many Requests")
                 break
                 
             time.sleep(0.5)
@@ -198,17 +198,17 @@ def test_protected_routes():
     # Test without auth
     response = requests.get(f"{BASE_URL}/admin/cache/stats")
     if response.status_code == 401:
-        print("✅ Admin route properly protected (401 Unauthorized)")
+        print("Admin route properly protected (401 Unauthorized)")
     else:
-        print(f"❌ Admin route not protected! Got: {response.status_code}")
+        print(f"X Admin route not protected! Got: {response.status_code}")
     
     # Test with fake token
     headers = {"Authorization": "Bearer fake-token"}
     response = requests.get(f"{BASE_URL}/admin/cache/stats", headers=headers)
     if response.status_code == 401:
-        print("✅ Invalid token rejected (401 Unauthorized)")
+        print("Invalid token rejected (401 Unauthorized)")
     else:
-        print(f"❌ Invalid token accepted! Got: {response.status_code}")
+        print(f"X Invalid token accepted! Got: {response.status_code}")
 
 if __name__ == "__main__":
     print("=== Security Testing ===\n")
@@ -265,10 +265,10 @@ uv run python -c "from src.middleware import setup_security_middleware; print('I
 
 ## Förväntade resultat
 
-✅ Security headers syns i alla responses  
-✅ Rate limiting aktiveras efter 60 requests/minut  
-✅ Admin routes returnerar 401 utan autentisering  
-✅ CORS tillåter endast configurerade origins  
-✅ Frontend visar tydliga felmeddelanden vid rate limiting  
+Security headers syns i alla responses  
+Rate limiting aktiveras efter 60 requests/minut  
+Admin routes returnerar 401 utan autentisering  
+CORS tillåter endast configurerade origins  
+Frontend visar tydliga felmeddelanden vid rate limiting  
 
 När alla tester passerar är säkerheten korrekt implementerad!

@@ -4,7 +4,7 @@ services:
   # Backend (FastAPI + LangGraph)
   backend:
     build:
-      context: ./langgraph-api
+      context: ./backend
       dockerfile: Dockerfile
     container_name: peterbot-backend
     ports:
@@ -23,7 +23,7 @@ services:
       - FIREBASE_COLLECTION_NAME=${FIREBASE_COLLECTION_NAME}
       - LOG_LEVEL=INFO
     volumes:
-      - ./langgraph-api:/app
+      - ./backend:/app
       - /app/.venv  # Exclude .venv from volume mount
     networks:
       - peterbot-network
@@ -36,7 +36,7 @@ services:
   # Frontend (React + Vite)
   frontend:
     build:
-      context: ./client
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: peterbot-frontend
     ports:
