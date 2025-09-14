@@ -54,7 +54,7 @@ cd peterbot-ai
 
 ```bash
 # Navigate to backend directory
-cd langgraph-api
+cd backend
 
 # Install dependencies using UV
 uv sync
@@ -94,7 +94,7 @@ uv run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
 ```bash
 # Navigate to frontend directory
-cd ../client
+cd ../frontend
 
 # Install dependencies
 npm install
@@ -127,7 +127,7 @@ npm run dev
 # The app will be available at http://localhost:5173
 ```
 
-## 🔥 Firebase Setup
+## Firebase Setup
 
 ### 1. Create Firebase Project
 
@@ -167,7 +167,7 @@ service cloud.firestore {
 ### Test Backend API
 
 ```bash
-cd langgraph-api
+cd backend
 
 # Test configuration
 uv run python scripts/test_config.py
@@ -182,7 +182,7 @@ uv run python scripts/test_search.py
 ### Test Frontend
 
 ```bash
-cd client
+cd frontend
 
 # Run linting
 npm run lint
@@ -204,12 +204,12 @@ Once the backend is running, visit:
 - `POST /api/documents` - Add document to knowledge base
 - `GET /api/documents` - List stored documents
 
-##  Development Workflow
+## Development Workflow
 
 ### Backend Development
 
 ```bash
-cd langgraph-api
+cd backend
 
 # Run with auto-reload
 uv run uvicorn src.main:app --reload
@@ -227,7 +227,7 @@ uv run python scripts/test_api.py
 ### Frontend Development
 
 ```bash
-cd client
+cd frontend
 
 # Development server
 npm run dev
@@ -239,7 +239,7 @@ npm run build
 npm run lint
 ```
 
-##  Production Deployment
+## Production Deployment
 
 ### Using Docker
 
@@ -248,31 +248,31 @@ npm run lint
 docker-compose up --build
 
 # Or build individual containers
-cd client && docker build -t peterbot-frontend .
-cd langgraph-api && docker build -t peterbot-backend .
+cd frontend && docker build -t peterbot-frontend .
+cd backend && docker build -t peterbot-backend .
 ```
 
 ### Manual Deployment
 
 1. **Build Frontend:**
    ```bash
-   cd client
+   cd frontend
    npm run build
    # Deploy dist/ folder to your web server
    ```
 
 2. **Deploy Backend:**
    ```bash
-   cd langgraph-api
+   cd backend
    # Use gunicorn for production
    uv run gunicorn src.main:app -w 4 -k uvicorn.workers.UvicornWorker
    ```
 
-##  Configuration
+## Configuration
 
 ### Backend Settings
 
-Located in `langgraph-api/src/config/settings.py`:
+Located in `backend/src/config/settings.py`:
 
 - `MAX_SEARCH_RESULTS`: Maximum documents returned from vector search
 - `SIMILARITY_THRESHOLD`: Minimum similarity score for search results
@@ -285,7 +285,7 @@ Located in `langgraph-api/src/config/settings.py`:
 - `tailwind.config.js`: Tailwind CSS customization
 - `firebase/config.ts`: Firebase SDK configuration
 
-##  Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -319,28 +319,37 @@ LOG_LEVEL=DEBUG uv run uvicorn src.main:app --reload
 tail -f logs/app.log
 ```
 
-##  Project Structure
+## Project Structure
 
 ```
 peterbot-ai/
-├── client/                 # React TypeScript frontend
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── firebase/      # Firebase configuration
-│   │   └── App.tsx        # Main application
-│   ├── public/           # Static assets
-│   └── vite.config.ts    # Vite configuration
-├── langgraph-api/        # Python FastAPI backend
+├── backend/               # Python FastAPI backend
 │   ├── src/
 │   │   ├── api/          # FastAPI routes
 │   │   ├── core/         # LangGraph nodes & state
 │   │   ├── services/     # Business logic services
 │   │   └── config/       # Configuration
-│   └── scripts/          # Utility scripts
+│   ├── scripts/          # Utility scripts
+│   └── tests/            # Test files
+├── frontend/             # React TypeScript frontend
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── firebase/     # Firebase configuration
+│   │   └── App.tsx       # Main application
+│   ├── public/           # Static assets
+│   ├── standalone-chat/  # Standalone chat app
+│   ├── standalone-chat-react/ # React standalone version
+│   └── vite.config.ts    # Vite configuration
+├── docs/                 # Documentation
+│   ├── DOCKER_TEST_GUIDE.md
+│   ├── PROJECT_STRUCTURE.md
+│   └── TEST_SECURITY_LOCAL.md
+├── nginx/                # Nginx configuration
+├── docker-compose.yml    # Docker orchestration
 └── README.md
 ```
 
-##  Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -348,11 +357,11 @@ peterbot-ai/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-##  License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-##  About
+## About
 
 Created by Peter - A passionate developer showcasing modern full-stack AI application development with enterprise-grade architecture and best practices.
 

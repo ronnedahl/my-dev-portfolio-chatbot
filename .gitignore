@@ -320,6 +320,10 @@ dump.rdb
 # Project Specific
 # ============================================
 
+# Project management and AI assistant files
+PROJECT_STRUCTURE.md
+CLAUDE.md
+
 # Firebase emulator
 firebase-debug.log
 .firebase/

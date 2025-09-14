@@ -1,8 +1,8 @@
-# 🐳 Docker Test Guide - PeterBot AI
+# Docker Test Guide - PeterBot AI
 
 Guide för att testa PeterBot AI med Docker innan deployment till Hetzner.
 
-## 📋 Förutsättningar
+## Förutsättningar
 
 ### Windows Docker Setup:
 1. **Docker Desktop** installerat och igång
@@ -15,7 +15,7 @@ docker --version
 docker-compose --version
 ```
 
-## 🚀 Snabbstart
+## Snabbstart
 
 ### 1. **Förbered environment-variabler**
 ```bash
@@ -43,7 +43,7 @@ docker-compose --env-file .env.docker.local up --build -d
 - **Backend API**: http://localhost:8000
 - **Health checks**: `/health` på alla endpoints
 
-## 📚 Docker Kommandon
+## Docker Kommandon
 
 ### **Starta services:**
 ```bash
@@ -76,7 +76,7 @@ docker-compose --env-file .env.docker.local down
 ./docker-cleanup.bat
 ```
 
-## 🛠️ Development Mode
+## Development Mode
 
 För hot reload och utveckling:
 
@@ -88,7 +88,7 @@ docker-compose -f docker-compose.dev.yml --env-file .env.docker.local up -d
 # Backend på port 8000
 ```
 
-## 🧪 Testscenarios
+## Testscenarios
 
 ### **1. Basic Functionality Test**
 ```bash
@@ -123,7 +123,7 @@ docker exec peterbot-frontend curl http://backend:8000/health
 docker exec peterbot-backend curl http://frontend:3000/health
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### **Container startar inte:**
 ```bash
@@ -156,7 +156,7 @@ docker network ls
 docker network inspect peterbot-ai_peterbot-network
 ```
 
-## 📊 Performance Monitoring
+## Performance Monitoring
 
 ### **Resource Usage:**
 ```bash
@@ -173,7 +173,7 @@ docker system df
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
 
-## 🚢 Production vs Development
+## Production vs Development
 
 ### **Production Mode:**
 - **Optimized builds**: Minimerat för prestanda
@@ -187,9 +187,9 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 - **Debug logs**: Mer detaljerad logging
 - **Port mapping**: Direkt access till services
 
-## 📈 Success Criteria
+## Success Criteria
 
-### **✅ Docker test är framgångsrikt om:**
+### **Docker test är framgångsrikt om:**
 1. Alla containers startar utan fel
 2. Health checks returnerar 200 OK
 3. Frontend visar chat-interface
@@ -197,14 +197,14 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 5. Nginx proxy fungerar korrekt
 6. Environment-variabler laddas korrekt
 
-### **✅ Redo för Hetzner deployment:**
+### **Redo för Hetzner deployment:**
 - Docker test passerar alla scenarion
 - Images byggs utan fel
 - Services kommunicerar korrekt via nätverk
 - Security headers fungerar
 - Performance är acceptabel
 
-## 🎯 Next Steps
+## Next Steps
 
 Efter framgångsrik Docker-test:
 1. **Push images** till registry (Docker Hub/Hetzner)
@@ -215,4 +215,4 @@ Efter framgångsrik Docker-test:
 
 ---
 
-**🔧 Problem?** Kolla logs med `docker-compose logs -f` eller kör `./docker-cleanup.bat` för clean start.
+**Problem?** Kolla logs med `docker-compose logs -f` eller kör `./docker-cleanup.bat` för clean start.

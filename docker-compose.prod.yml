@@ -4,12 +4,12 @@ services:
   # Backend API
   api:
     build:
-      context: ./langgraph-api
+      context: ./backend
       dockerfile: Dockerfile
     container_name: peterbot-api
     restart: unless-stopped
     env_file:
-      - ./langgraph-api/.env.production
+      - ./backend/.env.production
     ports:
       - "8000:8000"
     networks:
@@ -34,7 +34,7 @@ services:
   # Frontend Chat
   chat:
     build:
-      context: ./standalone-chat
+      context: ./frontend/standalone-chat
       dockerfile: Dockerfile
     container_name: peterbot-chat
     restart: unless-stopped
