@@ -337,8 +337,7 @@ peterbot-ai/
 │   │   ├── firebase/     # Firebase configuration
 │   │   └── App.tsx       # Main application
 │   ├── public/           # Static assets
-│   ├── standalone-chat/  # Standalone chat app
-│   ├── standalone-chat-react/ # React standalone version
+│   ├── standalone-chat-react/ # Standalone React chat widget
 │   └── vite.config.ts    # Vite configuration
 ├── docs/                 # Documentation
 │   ├── DOCKER_TEST_GUIDE.md
