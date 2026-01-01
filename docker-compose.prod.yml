@@ -34,7 +34,7 @@ services:
   # Frontend Chat
   chat:
     build:
-      context: ./frontend/standalone-chat
+      context: ./frontend/standalone-chat-react
       dockerfile: Dockerfile
     container_name: peterbot-chat
     restart: unless-stopped
