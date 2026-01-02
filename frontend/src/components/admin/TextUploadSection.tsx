@@ -24,14 +24,16 @@ const TextUploadSection: React.FC<TextUploadSectionProps> = ({ setStatusMessage,
     setIsLoading(true);
     setStatusMessage({ text: 'Uploading text...', type: 'info' });
 
-    const formData = new FormData();
-    formData.append('type', 'text');
-    formData.append('content', trimmedText);
-
     try {
-      const response = await fetch(`${apiBaseUrl}/api/load-documents`, {
+      const response = await fetch(`${apiBaseUrl}/documents/`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: trimmedText,
+          metadata: { category: 'general', source: 'admin_upload' }
+        }),
       });
 
       const result = await response.json();
