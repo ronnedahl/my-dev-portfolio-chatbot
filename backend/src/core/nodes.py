@@ -128,7 +128,7 @@ class Nodes:
         self.llm = ChatOpenAI(
             openai_api_key=settings.openai_api_key,
             model="gpt-4o-mini",
-            temperature=0.7,
+            temperature=0.2,
             timeout=settings.llm_timeout,
             max_retries=2
         )
