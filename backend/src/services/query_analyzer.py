@@ -11,27 +11,27 @@ logger = structlog.get_logger()
 class QueryAnalyzer:
     """Analyzes user queries to determine processing requirements."""
     
-    RETRIEVAL_REQUIRED_PROMPT = """You are analyzing queries for Peter's personal AI assistant.
-    Users will ask questions directly to Peter using "you", "your", etc.
-    
-    Return "yes" if the query is about:
-    - Personal details (age, location, background, family) - e.g. "How old are you?", "Where do you live?"
-    - Skills, experience, or work history - e.g. "What's your experience?", "What do you do?"
-    - Education, projects, achievements - e.g. "What did you study?", "Your projects?"
-    - CV or resume information - e.g. "Your qualifications?"
-    - Contact information - e.g. "How can I contact you?"
-    - Any specific facts, preferences, or characteristics
-    - Questions using "you", "your", "yours" referring to personal information
-    - Questions mentioning Peter by name or "him"
-    
-    Return "no" ONLY if the query is:
-    - General knowledge questions not about personal information
-    - Pure greetings like "hello" or "hi"
-    - Questions about how the AI system works
-    - Requests for general help not related to personal information
-    
-    When in doubt, return "yes" - it's better to search than miss information.
-    
+    RETRIEVAL_REQUIRED_PROMPT = """You analyze queries for Peter's CV/portfolio chatbot.
+
+    Return "yes" for ANY question about:
+    - Tech stack, programming languages, frameworks, tools
+    - Skills, competencies, expertise
+    - Work experience, career, jobs
+    - Projects, portfolio, what Peter has built
+    - Education, certifications, courses
+    - Personal info (age, location, background)
+    - Contact information
+    - ANY question using "you", "your", "din", "ditt", "du"
+
+    Return "no" ONLY for:
+    - Pure greetings: "hej", "hello", "hi", "tack", "thanks"
+    - Off-topic: politics, news, other people, general knowledge
+
+    IMPORTANT: If the question contains words like "teknikstack", "skills", "erfarenhet",
+    "projekt", "programmering", "språk", "ramverk" - ALWAYS return "yes".
+
+    When in doubt, return "yes".
+
     Only respond with "yes" or "no"."""
     
     def __init__(self, llm: ChatOpenAI):
