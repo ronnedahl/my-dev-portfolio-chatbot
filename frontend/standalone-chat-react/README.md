@@ -8,7 +8,7 @@ A modern, responsive AI chat application built with React, TypeScript, and Tailw
 - **Professional Architecture**: Modular components, custom hooks, comprehensive TypeScript interfaces
 - **Performance Optimized**: Quick response system, caching, efficient state management with Zustand
 - **Responsive Design**: Mobile-first approach with dark/light theme support
-- **Production Ready**: Docker containerization, Nginx configuration, security headers
+- **Production Ready**: Security headers, optimized builds
 - **Accessibility**: WCAG 2.1 AA compliance, screen reader support, keyboard navigation
 - **Developer Experience**: ESLint, Prettier, comprehensive error handling
 
@@ -75,17 +75,6 @@ VITE_ENVIRONMENT=development
 
 ## 🚀 Production Deployment
 
-### Docker Deployment
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-
-# Or build individual container
-docker build -t peterbot-chat-react .
-docker run -p 3000:3000 peterbot-chat-react
-```
-
-### Manual Deployment
 ```bash
 # Build for production
 npm run build
@@ -93,14 +82,6 @@ npm run build
 # Serve with any static file server
 # Built files are in ./dist/
 ```
-
-### Nginx Configuration
-The included `nginx.conf` provides:
-- Security headers (CSP, XSS protection, etc.)
-- API proxying to backend
-- WebSocket support
-- Static asset optimization
-- SPA routing support
 
 ## 🔧 Configuration
 
@@ -144,8 +125,6 @@ The app expects a backend API at the configured base URL with endpoints:
 - XSS protection
 - CSRF protection
 - Input validation and sanitization
-- Secure Docker configuration
-- Non-root container user
 
 ## 📊 Performance
 
@@ -171,35 +150,6 @@ npm run test
 - Strict TypeScript configuration
 - Comprehensive error boundaries
 - Type-safe API integration
-
-## 🚢 Deployment to Hetzner
-
-For deployment to `peterbod.dev`:
-
-1. **Build the production image**:
-```bash
-docker build -t peterbot-chat-react:latest .
-```
-
-2. **Deploy to server**:
-```bash
-# Transfer to server
-docker save peterbot-chat-react:latest | ssh user@peterbod.dev docker load
-
-# Run on server
-ssh user@peterbod.dev "docker run -d -p 3000:3000 --name peterbot-chat peterbot-chat-react:latest"
-```
-
-3. **Configure reverse proxy** (if using existing nginx):
-```nginx
-location /chat/ {
-    proxy_pass http://localhost:3000/;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
 
 ## 👨‍💻 Author
 

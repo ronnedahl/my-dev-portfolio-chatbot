@@ -23,7 +23,7 @@ Visit [your-domain.com](https://your-domain.com) to interact with PeterBot AI.
 - **Backend**: FastAPI, LangGraph, LangChain, Python 3.11+
 - **AI/ML**: OpenAI GPT-4o-mini, Text Embeddings, Vector Search
 - **Database**: Firebase Firestore with vector search capabilities
-- **Infrastructure**: Docker, Nginx, UV package manager
+- **Infrastructure**: UV package manager
 
 ## Prerequisites
 
@@ -33,7 +33,6 @@ Before you begin, ensure you have the following installed:
 - **Python** 3.11 or higher
 - **UV** package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
 - **Git**
-- **Docker** (optional, for containerized deployment)
 
 ### Required API Keys & Services
 
@@ -241,19 +240,6 @@ npm run lint
 
 ## Production Deployment
 
-### Using Docker
-
-```bash
-# Build and run with Docker Compose (if available)
-docker-compose up --build
-
-# Or build individual containers
-cd frontend && docker build -t peterbot-frontend .
-cd backend && docker build -t peterbot-backend .
-```
-
-### Manual Deployment
-
 1. **Build Frontend:**
    ```bash
    cd frontend
@@ -337,15 +323,11 @@ peterbot-ai/
 │   │   ├── firebase/     # Firebase configuration
 │   │   └── App.tsx       # Main application
 │   ├── public/           # Static assets
-│   ├── standalone-chat/  # Standalone chat app
-│   ├── standalone-chat-react/ # React standalone version
+│   ├── standalone-chat-react/ # Standalone React chat widget
 │   └── vite.config.ts    # Vite configuration
 ├── docs/                 # Documentation
-│   ├── DOCKER_TEST_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
 │   └── TEST_SECURITY_LOCAL.md
-├── nginx/                # Nginx configuration
-├── docker-compose.yml    # Docker orchestration
 └── README.md
 ```
 
