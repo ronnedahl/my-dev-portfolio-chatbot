@@ -19,31 +19,13 @@ API_ENV=production         # Produktionsläge
 CACHE_TTL=600              # Längre cache (10 minuter)
 ```
 
-## Docker/Deployment optimering
+## Deployment optimering
 
-Lägg till i din Dockerfile eller docker-compose.yml:
+Miljövariabler för produktion:
 
-```yaml
-environment:
-  - PYTHONUNBUFFERED=1
-  - PYTHONDONTWRITEBYTECODE=1
-  - WORKERS=4              # Fler worker processes
-```
-
-## Nginx optimering
-
-Uppdatera nginx-konfigurationen:
-
-```nginx
-location /api/ {
-    proxy_pass http://backend;
-    proxy_timeout 30s;      # Kortare timeout
-    proxy_read_timeout 30s;
-    proxy_connect_timeout 10s;
-    
-    # Caching för statiska svar
-    proxy_cache_valid 200 5m;
-}
+```bash
+export PYTHONUNBUFFERED=1
+export PYTHONDONTWRITEBYTECODE=1
 ```
 
 ## Förväntade resultat i produktion
