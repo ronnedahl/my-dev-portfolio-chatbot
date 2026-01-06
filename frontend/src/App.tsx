@@ -5,12 +5,14 @@ import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ServerErrorPage from './pages/ServerErrorPage';
+import { usePageTracking } from './hooks/useAnalytics';
 
-const App: React.FC = () => {
+const AppRoutes: React.FC = () => {
+  usePageTracking();
+
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Routes>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Routes>
          
           <Route path="/" element={<Navigate to="/chat" replace />} />
           
@@ -26,6 +28,13 @@ const App: React.FC = () => {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <AppRoutes />
     </Router>
   );
 };
