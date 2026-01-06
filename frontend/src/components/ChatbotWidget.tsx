@@ -11,14 +11,19 @@ interface Message {
     sender: 'user' | 'ai' | 'error';
 }
 
+const PROMPT_SUGGESTIONS = [
+    'Vad använder du för teknikstack?',
+    'Vilket är ditt största projekt?',
+    'Vad gjorde du på din LIA-period?'
+];
+
 const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
-      
         { id: Date.now(), text: 'Hej! Jag är Peter. Vad vill du veta om mig?', sender: 'ai' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-   
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const [isVisible, setIsVisible] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -26,9 +31,9 @@ const ChatWindow: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleSend = async (e: FormEvent) => {
+    const handleSend = async (e: FormEvent, suggestionText?: string) => {
         e.preventDefault();
-        const trimmedInput = inputValue.trim();
+        const trimmedInput = suggestionText || inputValue.trim();
         if (!trimmedInput || isLoading) return;
 
         const userMessage: Message = {
@@ -40,6 +45,7 @@ const ChatWindow: React.FC = () => {
         setMessages(prev => [...prev, userMessage]);
         setInputValue('');
         setIsLoading(true);
+        setShowSuggestions(false);
 
         try {
             const data = await sendChatMessage({
@@ -90,6 +96,11 @@ const ChatWindow: React.FC = () => {
 
     const toggleChatVisibility = () => {
         setIsVisible(!isVisible);
+    };
+
+    const handleSuggestionClick = (suggestion: string) => {
+        const syntheticEvent = { preventDefault: () => {} } as FormEvent;
+        handleSend(syntheticEvent, suggestion);
     };
 
     return (
@@ -157,6 +168,20 @@ const ChatWindow: React.FC = () => {
                             </div>
                         ))}
                         
+                        {showSuggestions && !isLoading && (
+                            <div className="flex flex-wrap gap-2 justify-start mt-2">
+                                {PROMPT_SUGGESTIONS.map((suggestion, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs rounded-full border border-gray-600 hover:border-blue-500 transition-all duration-200"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="bg-gray-700 text-white p-3 rounded-lg">
@@ -164,7 +189,7 @@ const ChatWindow: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                       
+
                         <div ref={messagesEndRef} />
                     </div>
 

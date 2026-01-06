@@ -11,6 +11,12 @@ interface Message {
     timestamp: Date;
 }
 
+const PROMPT_SUGGESTIONS = [
+    'Vad använder du för teknikstack?',
+    'Vilket är ditt största projekt?',
+    'Vad gjorde du på din LIA-period?'
+];
+
 const ChatPage: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -22,6 +28,7 @@ const ChatPage: React.FC = () => {
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,9 +40,9 @@ const ChatPage: React.FC = () => {
         inputRef.current?.focus();
     }, []);
 
-    const handleSend = async (e: FormEvent) => {
+    const handleSend = async (e: FormEvent, suggestionText?: string) => {
         e.preventDefault();
-        const trimmedInput = inputValue.trim();
+        const trimmedInput = suggestionText || inputValue.trim();
         if (!trimmedInput || isLoading) return;
 
         const userMessage: Message = {
@@ -48,6 +55,7 @@ const ChatPage: React.FC = () => {
         setMessages(prev => [...prev, userMessage]);
         setInputValue('');
         setIsLoading(true);
+        setShowSuggestions(false);
 
         try {
             const data = await sendChatMessage({
@@ -105,6 +113,12 @@ const ChatPage: React.FC = () => {
             sender: 'ai',
             timestamp: new Date()
         }]);
+        setShowSuggestions(true);
+    };
+
+    const handleSuggestionClick = (suggestion: string) => {
+        const syntheticEvent = { preventDefault: () => {} } as FormEvent;
+        handleSend(syntheticEvent, suggestion);
     };
 
     const formatTime = (timestamp: Date) => {
@@ -171,6 +185,20 @@ const ChatPage: React.FC = () => {
                     </div>
                 ))}
                 
+                {showSuggestions && !isLoading && (
+                    <div className="flex flex-wrap gap-2 justify-start mt-2">
+                        {PROMPT_SUGGESTIONS.map((suggestion, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-full border border-gray-600 hover:border-blue-500 transition-all duration-200 hover:shadow-md"
+                            >
+                                {suggestion}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {isLoading && (
                     <div className="flex justify-start">
                         <div className="bg-gray-700 text-white p-3 rounded-lg">
@@ -178,7 +206,7 @@ const ChatPage: React.FC = () => {
                         </div>
                     </div>
                 )}
-                
+
                 <div ref={messagesEndRef} />
             </div>
 
