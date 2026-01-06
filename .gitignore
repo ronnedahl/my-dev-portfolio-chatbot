@@ -323,6 +323,9 @@ dump.rdb
 # Project management and AI assistant files
 PROJECT_STRUCTURE.md
 CLAUDE.md
+.claude/
+deploy.sh
+
 
 # Firebase emulator
 firebase-debug.log

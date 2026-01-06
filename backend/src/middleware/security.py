@@ -137,8 +137,8 @@ def setup_security_middleware(app: FastAPI):
     
     app.add_middleware(
         RateLimitMiddleware,
-        calls_per_minute=60,  
-        calls_per_hour=1000   
+        calls_per_minute=20,  
+        calls_per_hour=30   
     )
     
     # Only add TrustedHostMiddleware in production to avoid CORS issues in development
