@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { IconType } from 'react-icons';
 import { IoHomeOutline, IoChatbubbleOutline, IoArrowBackOutline } from 'react-icons/io5';
-import profilfoto from '../assets/profilfoto.jpg';
+import profilfoto from '../assets/peter-profile-small.png';
 
 interface ErrorAction {
     label: string;

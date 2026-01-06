@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { IoSend } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
-import profilfoto from '../assets/profilfoto.jpg';
+import profilfoto from '../assets/peter-profile-small.png';
 import { sendChatMessage, APIError } from '../utils/api';
 
 interface Message {
