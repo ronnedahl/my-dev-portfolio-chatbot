@@ -6,6 +6,9 @@ A full-stack AI assistant application built with React TypeScript frontend and P
 
 Visit [peterbot.dev](https://cv.peterbot.dev/chat) to interact with PeterBot AI.
 
+## Screenshots
+<img src="chatbot-peter.png" alt="PeterBot AI" width="400"/>
+
 ## Architecture Overview
 
 ```
