@@ -349,4 +349,4 @@ Created by Peter - A passionate developer showcasing modern full-stack AI applic
 
 ---
 
-**Questions?** Open an issue or contact me at [your-email@example.com](mailto:your-dev.peter.ai@gmail.com)
+**Questions?** Open an issue or contact me at [dev.peter.ai@gmail.com](mailto:dev.peter.ai@gmail.com)
