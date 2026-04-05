@@ -4,7 +4,7 @@ A full-stack AI assistant application built with React TypeScript frontend and P
 
 ## Live Demo
 
-Visit [your-domain.com](https://your-domain.com) to interact with PeterBot AI.
+Visit [peterbot.dev](https://cv.peterbot.dev/chat) to interact with PeterBot AI.
 
 ## Architecture Overview
 
