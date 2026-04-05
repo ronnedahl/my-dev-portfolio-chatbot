@@ -29,9 +29,6 @@ function LoginPage(){
 
       if (username === 'admin' && password === 'password123') {
         setStatusMessage({ text: 'Login successful! Redirecting...', type: 'success' });
-      
-        console.log('Login successful (simulated)');
-        
       } else {
         
         throw new Error('Invalid username or password.');
