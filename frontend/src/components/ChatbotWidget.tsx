@@ -12,14 +12,14 @@ interface Message {
 }
 
 const PROMPT_SUGGESTIONS = [
-    'Vad använder du för teknikstack?',
-    'Vilket är ditt största projekt?',
-    'Vad gjorde du på din LIA-period?'
+    'What is your tech stack?',
+    'What is your biggest project?',
+    'What did you do during your internships?'
 ];
 
 const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
-        { id: Date.now(), text: 'Hej! Jag är Peter. Vad vill du veta om mig?', sender: 'ai' }
+        { id: Date.now(), text: "Hi! I'm Peter. What would you like to know about me?", sender: 'ai' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -68,15 +68,15 @@ const ChatWindow: React.FC = () => {
         } catch (err: any) {
             console.error("Failed to send message:", err);
             
-            let errorText = 'Kunde inte ge dig ett svar, prova igen';
-            
+            let errorText = "Couldn't get a response, please try again";
+
             if (err instanceof APIError) {
                 if (err.status === 429) {
-                    errorText = 'Du skickar för många meddelanden. Vänta en stund och försök igen.';
+                    errorText = "You're sending too many messages. Please wait a moment and try again.";
                 } else if (err.status === 408 || err.status === 504) {
-                    errorText = 'Begäran tog för lång tid. Försök igen.';
+                    errorText = 'The request took too long. Please try again.';
                 } else if (err.status >= 500) {
-                    errorText = 'Serverfel. Försök igen senare.';
+                    errorText = 'Server error. Please try again later.';
                 } else {
                     errorText = err.message || errorText;
                 }
@@ -109,7 +109,7 @@ const ChatWindow: React.FC = () => {
             <button 
                 onClick={toggleChatVisibility}
                 className={`fixed bottom-20 sm:bottom-4 md:bottom-4 right-4 rounded-full shadow-lg hover:opacity-90 transition-all z-50 p-0 overflow-hidden w-14 h-14 flex items-center justify-center border border-white ${!isVisible ? 'animate-pulse' : ''}`}
-                aria-label={isVisible ? "Dölj chat" : "Visa chat"}
+                aria-label={isVisible ? "Hide chat" : "Show chat"}
                 style={{ boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.5), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}
             >
                 <div className="w-full h-full rounded-full overflow-hidden">
@@ -140,7 +140,7 @@ const ChatWindow: React.FC = () => {
                         <button 
                             onClick={toggleChatVisibility} 
                             className="text-white hover:text-gray-200 p-2"
-                            aria-label="Stäng chat"
+                            aria-label="Close chat"
                         >
                             <FaTimes size={20} />
                         </button>
@@ -199,7 +199,7 @@ const ChatWindow: React.FC = () => {
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Skriv ditt meddelande..."
+                                placeholder="Type your message..."
                                 disabled={isLoading}
                                 className="flex-grow bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-l-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                             />

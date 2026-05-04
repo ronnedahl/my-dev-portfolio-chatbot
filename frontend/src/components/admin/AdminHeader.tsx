@@ -10,7 +10,7 @@ const AdminHeader: React.FC = () => {
         className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors"
       >
         <IoArrowBack size={20} />
-        <span>Tillbaka till chat</span>
+        <span>Back to chat</span>
       </Link>
       
       <h1 className="text-2xl font-bold text-white">

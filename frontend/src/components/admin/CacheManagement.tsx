@@ -22,7 +22,7 @@ const CacheManagement: React.FC<CacheManagementProps> = ({ setStatusMessage }) =
   const withAuth = async <T,>(operation: (token: string) => Promise<T>): Promise<T | null> => {
     if (!user) {
       setStatusMessage({
-        text: 'Du måste vara inloggad för att använda admin-funktioner',
+        text: 'You must be logged in to use admin functions',
         type: 'error'
       });
       navigate('/login');
@@ -32,7 +32,7 @@ const CacheManagement: React.FC<CacheManagementProps> = ({ setStatusMessage }) =
     const token = await getToken();
     if (!token) {
       setStatusMessage({
-        text: 'Kunde inte hämta autentiseringstoken',
+        text: 'Could not retrieve authentication token',
         type: 'error'
       });
       return null;

@@ -29,19 +29,19 @@ interface ErrorDisplayProps {
 
 const defaultActions: ErrorAction[] = [
     {
-        label: 'Tillbaka till chatten',
+        label: 'Back to chat',
         href: '/chat',
         icon: IoChatbubbleOutline,
         variant: 'primary'
     },
     {
-        label: 'Gå tillbaka',
+        label: 'Go back',
         onClick: () => window.history.back(),
         icon: IoArrowBackOutline,
         variant: 'secondary'
     },
     {
-        label: 'Hem',
+        label: 'Home',
         href: '/',
         icon: IoHomeOutline,
         variant: 'tertiary'
@@ -69,7 +69,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     description,
     reasons = [],
     actions = defaultActions,
-    footerMessage = "Behöver du hjälp? Ställ en fråga i chatten!"
+    footerMessage = "Need help? Ask a question in the chat!"
 }) => {
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
@@ -92,7 +92,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                     
                     {reasons.length > 0 && (
                         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                            <p className="text-gray-300 mb-4">Det kan bero på att:</p>
+                            <p className="text-gray-300 mb-4">This could be because:</p>
                             <ul className="text-sm text-gray-400 text-left space-y-2">
                                 {reasons.map((reason, index) => (
                                     <li key={index} className="flex items-center">

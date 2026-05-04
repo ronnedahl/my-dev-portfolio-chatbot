@@ -4,27 +4,27 @@ import ErrorDisplay from '../components/ErrorDisplay';
 
 const ServerErrorPage: React.FC = () => {
     const reasons = [
-        'Servern är tillfälligt otillgänglig',
-        'Databasfel eller konfigurationsproblem',
-        'Underhållsarbete pågår',
-        'Hög belastning på systemet'
+        'The server is temporarily unavailable',
+        'Database error or configuration issue',
+        'Maintenance is in progress',
+        'High load on the system'
     ];
 
     const actions = [
         {
-            label: 'Försök igen',
+            label: 'Try again',
             onClick: () => window.location.reload(),
             icon: IoRefreshOutline,
             variant: 'primary' as const
         },
         {
-            label: 'Tillbaka till chatten',
+            label: 'Back to chat',
             href: '/chat',
             icon: IoChatbubbleOutline,
             variant: 'secondary' as const
         },
         {
-            label: 'Rapportera problem',
+            label: 'Report issue',
             onClick: () => window.open('mailto:support@peterbot.dev?subject=Server Error 500', '_blank'),
             icon: IoMailOutline,
             variant: 'tertiary' as const
@@ -34,11 +34,11 @@ const ServerErrorPage: React.FC = () => {
     return (
         <ErrorDisplay
             code="500"
-            title="Serverfel uppstod"
-            description="Något gick fel på vår server. Vi arbetar på att lösa problemet."
+            title="Server error"
+            description="Something went wrong on our server. We're working on a fix."
             reasons={reasons}
             actions={actions}
-            footerMessage="Problemet är vanligtvis tillfälligt. Försök igen om en stund."
+            footerMessage="The issue is usually temporary. Please try again in a moment."
         />
     );
 };
