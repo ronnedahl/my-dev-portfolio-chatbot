@@ -12,16 +12,16 @@ interface Message {
 }
 
 const PROMPT_SUGGESTIONS = [
-    'Vad använder du för teknikstack?',
-    'Vilket är ditt största projekt?',
-    'Vad gjorde du på din LIA-period?'
+    'What is your tech stack?',
+    'What is your biggest project?',
+    'What did you do during your internships?'
 ];
 
 const ChatPage: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: Date.now(),
-            text: 'Hej! Jag är Peter. Vad vill du veta om mig?',
+            text: "Hi! I'm Peter. What would you like to know about me?",
             sender: 'ai',
             timestamp: new Date()
         }
@@ -79,15 +79,15 @@ const ChatPage: React.FC = () => {
         } catch (err: any) {
             console.error("Failed to send message:", err);
             
-            let errorText = 'Kunde inte ge dig ett svar, prova igen';
-            
+            let errorText = "Couldn't get a response, please try again";
+
             if (err instanceof APIError) {
                 if (err.status === 429) {
-                    errorText = 'Du skickar för många meddelanden. Vänta en stund och försök igen.';
+                    errorText = "You're sending too many messages. Please wait a moment and try again.";
                 } else if (err.status === 408 || err.status === 504) {
-                    errorText = 'Begäran tog för lång tid. Försök igen.';
+                    errorText = 'The request took too long. Please try again.';
                 } else if (err.status >= 500) {
-                    errorText = 'Serverfel. Försök igen senare.';
+                    errorText = 'Server error. Please try again later.';
                 } else {
                     errorText = err.message || errorText;
                 }
@@ -109,7 +109,7 @@ const ChatPage: React.FC = () => {
     const clearChat = () => {
         setMessages([{
             id: Date.now(),
-            text: 'Hej! Jag är Peter. Vad vill du veta om mig?',
+            text: "Hi! I'm Peter. What would you like to know about me?",
             sender: 'ai',
             timestamp: new Date()
         }]);
@@ -142,7 +142,7 @@ const ChatPage: React.FC = () => {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-white">Peter AI Assistant</h1>
-                        <p className="text-sm text-gray-400">Alltid redo</p>
+                        <p className="text-sm text-gray-400">Always ready</p>
                     </div>
                 </div>
                 
@@ -151,7 +151,7 @@ const ChatPage: React.FC = () => {
                         onClick={clearChat}
                         className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-md text-gray-300 hover:text-white transition-colors"
                     >
-                        Rensa chat
+                        Clear chat
                     </button>
                 </div>
             </header>
@@ -217,7 +217,7 @@ const ChatPage: React.FC = () => {
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Skriv ditt meddelande..."
+                        placeholder="Type your message..."
                         disabled={isLoading}
                         className="flex-1 bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     />
@@ -225,7 +225,7 @@ const ChatPage: React.FC = () => {
                         type="submit"
                         disabled={isLoading || !inputValue.trim()}
                         className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title="Skicka meddelande"
+                        title="Send message"
                     >
                         {isLoading ? (
                             <BeatLoader color="#ffffff" size={8} />
@@ -236,7 +236,7 @@ const ChatPage: React.FC = () => {
                 </form>
                 
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                    Fråga mig om Peters erfarenhet, utbildning, projekt eller tekniska färdigheter
+                    Ask me about Peter's experience, education, projects, or technical skills
                 </p>
             </div>
         </div>
