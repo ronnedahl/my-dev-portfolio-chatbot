@@ -217,7 +217,7 @@ const ChatPage: React.FC = () => {
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Type your message..."
+                        placeholder="What would you like to know?"
                         disabled={isLoading}
                         className="flex-1 bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
                     />
