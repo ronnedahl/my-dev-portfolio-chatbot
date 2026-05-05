@@ -199,7 +199,7 @@ const ChatWindow: React.FC = () => {
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Type your message..."
+                                placeholder="What would you like to know?"
                                 disabled={isLoading}
                                 className="flex-grow bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-l-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                             />
